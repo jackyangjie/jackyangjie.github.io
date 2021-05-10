@@ -9,7 +9,7 @@
     
     <title>
         
-            标签 |
+            Java线上问题排查工具 |
         
         Healthy Mind
     </title>
@@ -80,7 +80,7 @@
                         </li>
                     
                         <li class="menu-item">
-                            <a class="active"
+                            <a class=""
                                href="/tags"
                             >
                                 标签
@@ -118,7 +118,7 @@
                 </li>
             
                 <li class="drawer-menu-item flex-center">
-                    <a class="active"
+                    <a class=""
                        href="/tags">标签</a>
                 </li>
             
@@ -137,15 +137,123 @@
             <div class="main-content">
 
                 
-                    
-    <div class="fade-in-down-animation">
-        <div class="tagcloud-container">
-            <div class="tagcloud-content">
-                <a href="/tags/Java-debug-tool/" style="font-size: 1rem;">Java-debug-tool</a> <a href="/tags/MyPerf4J3-0/" style="font-size: 1rem;">MyPerf4J3.0</a> <a href="/tags/arthas/" style="font-size: 1rem;">arthas</a> <a href="/tags/biancheng/" style="font-size: 1rem;">biancheng</a> <a href="/tags/cloudflare/" style="font-size: 1rem;">cloudflare</a> <a href="/tags/elasticsearch/" style="font-size: 1rem;">elasticsearch</a> <a href="/tags/freenom/" style="font-size: 1rem;">freenom</a> <a href="/tags/github/" style="font-size: 1rem;">github</a> <a href="/tags/grafana/" style="font-size: 1rem;">grafana</a> <a href="/tags/hexo/" style="font-size: 1rem;">hexo</a> <a href="/tags/influxdb1-7/" style="font-size: 1rem;">influxdb1.7</a> <a href="/tags/maven/" style="font-size: 1rem;">maven</a> <a href="/tags/springboot/" style="font-size: 1rem;">springboot</a> <a href="/tags/%E6%80%A7%E6%A0%BC/" style="font-size: 1rem;">性格</a> <a href="/tags/%E6%9D%82%E8%AE%B0/" style="font-size: 1.6rem;">杂记</a> <a href="/tags/%E7%AA%81%E7%A0%B4/" style="font-size: 1rem;">突破</a> <a href="/tags/%E8%AF%97/" style="font-size: 1.6rem;">诗</a> <a href="/tags/%E9%9A%8F%E8%AE%B0/" style="font-size: 1rem;">随记</a>
-            </div>
-        </div>
-    </div>
+                    <div class="fade-in-down-animation">
+    <div class="article-content-container">
 
+        <div class="article-title">
+            <span class="title-hover-animation">Java线上问题排查工具</span>
+        </div>
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="/images/logo.png">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">Healthy Mind</span>
+                        
+                            <span class="author-label">Lv2</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;2021-05-10 08:54:31
+    </span>
+    
+        <span class="article-categories article-meta-item">
+            <i class="fas fa-folder"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/categories/Java-debug-tool/">Java-debug-tool</a>&nbsp;
+                    </li>
+                
+                    <li>
+                        &gt; <a href="/categories/Java-debug-tool/arthas/">arthas</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+    
+        <span class="article-tags article-meta-item">
+            <i class="fas fa-tags"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/tags/Java-debug-tool/">Java-debug-tool</a>&nbsp;
+                    </li>
+                
+                    <li>
+                        | <a href="/tags/arthas/">arthas</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+
+    
+    
+    
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <h3 id="Java线上问题排查工具"><a href="#Java线上问题排查工具" class="headerlink" title="Java线上问题排查工具"></a>Java线上问题排查工具</h3><h5 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h5><p>​        在线上运行的项目遇到问题很多时候需要问题排查与解决，在不停掉系统的情况下完成。</p>
+<p> 这里有两款工具，都是国产的 </p>
+<ul>
+<li><p><a class="link" target="_blank" rel="noopener" href="https://github.com/pandening/Java-debug-tool">java-debug-tool<i class="fas fa-external-link-alt"></i></a> 美团开源的</p>
+<p> 可以使用命令行进行线上断点查看方法的输入参数和调用栈，文档稍微有些欠缺</p>
+</li>
+<li><p><a class="link" target="_blank" rel="noopener" href="https://github.com/alibaba/arthas">arthas<i class="fas fa-external-link-alt"></i></a>  阿里开源的 文档比较齐全</p>
+<ol>
+<li>这个类从哪个 jar 包加载的？为什么会报各种类相关的 Exception？</li>
+<li>我改的代码为什么没有执行到？难道是我没 commit？分支搞错了？</li>
+<li>遇到问题无法在线上 debug，难道只能通过加日志再重新发布吗？</li>
+<li>线上遇到某个用户的数据处理有问题，但线上同样无法 debug，线下无法重现！</li>
+<li>是否有一个全局视角来查看系统的运行状况？</li>
+<li>有什么办法可以监控到JVM的实时运行状态？</li>
+<li>怎么快速定位应用的热点，生成火焰图？</li>
+</ol>
+</li>
+</ul>
+
+        </div>
+
+        
+
+        
+            <div class="article-nav">
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                           rel="next"
+                           href="/2021/05/08/MyPerf4J3-0-influxdb1-7-grafana%E5%AE%9E%E7%8E%B0%E7%B3%BB%E7%BB%9F%E7%9B%91%E6%8E%A7/"
+                        >
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">MyPerf4J3.0+influxdb1.7+grafana实现系统监控</span>
+                                <span class="post-nav-item">下一篇</span>
+                            </span>
+                            <span class="right arrow-icon flex-center">
+                              <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+        
+    </div>
+</div>
 
 
                 
@@ -174,6 +282,23 @@
         </div>
     </div>
 
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+    </ul>
+</div>
+
+        </div>
     
 
     <div class="right-bottom-side-tools">
@@ -221,6 +346,14 @@
     </div>
 
     
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        <ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Java%E7%BA%BF%E4%B8%8A%E9%97%AE%E9%A2%98%E6%8E%92%E6%9F%A5%E5%B7%A5%E5%85%B7"><span class="nav-number">1.</span> <span class="nav-text">Java线上问题排查工具</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%89%8D%E8%A8%80"><span class="nav-number">1.0.1.</span> <span class="nav-text">前言</span></a></li></ol></li></ol></li></ol>
+    </div>
+</div>
+        </aside>
+    
 
     <div class="image-viewer-container">
     <img src="">
@@ -244,6 +377,8 @@
 
 
 <div class="post-scripts">
+    
+        <script src="/js/left-side-toggle.js"></script><script src="/js/libs/anime.min.js"></script><script src="/js/toc.js"></script>
     
 </div>
 
