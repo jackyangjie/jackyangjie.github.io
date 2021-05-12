@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="Healthy Mind">
+    
+    <title>
+        
+            Tomcat8.5源码学习二之Connector |
+        
+        Healthy Mind
+    </title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="shortcut icon" href="/images/logo.png">
+    <link rel="stylesheet" href="/css/font-awesome.min.css">
+    <script id="hexo-configurations">
+    let KEEP = window.KEEP || {};
+    KEEP.hexo_config = {"hostname":"example.com","root":"/","language":"zh-CN"};
+    KEEP.theme_config = {"toc":{"enable":true,"number":true,"expand_all":true,"init_open":false},"style":{"primary_color":"#0066CC","avatar":"/images/logo.png","favicon":"/images/logo.png","article_img_align":"left","left_side_width":"260px","content_max_width":"920px","hover":{"shadow":true,"scale":true},"first_screen":{"enable":true,"background_img":"/images/bg.svg","description":"Keep writing and Keep loving."},"scroll":{"progress_bar":{"enable":true},"percent":{"enable":true}}},"local_search":{"enable":false,"preload":false},"code_copy":{"enable":true,"style":"mac"},"pjax":{"enable":false},"lazyload":{"enable":false},"version":"3.4.1"};
+    KEEP.language_ago = {"second":"%s 秒前","minute":"%s 分钟前","hour":"%s 小时前","day":"%s 天前","week":"%s 周前","month":"%s 月前","year":"%s 年前"};
+  </script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+        <span class="scroll-progress-bar"></span>
+    
+
+    
+</div>
+
+
+<main class="page-container">
+
+    
+
+    <div class="page-main-content">
+
+        <div class="page-main-content-top">
+            <header class="header-wrapper">
+
+    <div class="header-content">
+        <div class="left">
+            <a class="logo-title" href="/">
+                Healthy Mind
+            </a>
+        </div>
+
+        <div class="right">
+            <div class="pc">
+                <ul class="menu-list">
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/"
+                            >
+                                首页
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >
+                                归档
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/categories"
+                            >
+                                分类
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/tags"
+                            >
+                                标签
+                            </a>
+                        </li>
+                    
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/">首页</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives">归档</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/categories">分类</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/tags">标签</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle">
+
+            <div class="main-content">
+
+                
+                    <div class="fade-in-down-animation">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            <span class="title-hover-animation">Tomcat8.5源码学习二之Connector</span>
+        </div>
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="/images/logo.png">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">Healthy Mind</span>
+                        
+                            <span class="author-label">Lv2</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;2021-05-12 09:27:18
+    </span>
+    
+        <span class="article-categories article-meta-item">
+            <i class="fas fa-folder"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/categories/tomcat/">tomcat</a>&nbsp;
+                    </li>
+                
+                    <li>
+                        &gt; <a href="/categories/tomcat/Connector/">Connector</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+    
+        <span class="article-tags article-meta-item">
+            <i class="fas fa-tags"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/tags/tomcat/">tomcat</a>&nbsp;
+                    </li>
+                
+                    <li>
+                        | <a href="/tags/Connector/">Connector</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+
+    
+    
+    
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <p>​     上一篇看到 了 Connector的初始化 这一篇学习一下Connector 的源码 还是选看tomcat的架构图</p>
+<p>​        <img src="/2021/05/12/Tomcat8-5%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%BA%8C%E4%B9%8BConnector/0.png" class title="tomcat"></p>
+<p>​        Connector 是tomcat 和外界交互的一个组件，对我们优化tomcat 的吞吐量和并发数，很有帮助，对于我们在写类似该功能的时候提供了一些参考借鉴的思路。</p>
+<p>   <strong>org.apache.catalina.util.LifecycleBase</strong> <em><strong>initial()</strong></em> 方法这里使用的 设计模是<strong>模板方法</strong> 还是老样子 查看 Connector 的  <em><strong>initInternal()</strong></em> 方法</p>
+<p>关于tomcat 各个组件的初始化请查看 <a class="link" target="_blank" rel="noopener" href="https://jackyangjie.github.io/2021/05/12/Tomcat%E5%86%85%E5%B5%8C%E5%92%8C%E6%9C%8D%E5%8A%A1%E5%90%AF%E5%8A%A8%E7%9A%84%E5%8C%BA%E5%88%AB/">Tomcat内嵌和服务启动的区别<i class="fas fa-external-link-alt"></i></a></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line">   <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">initInternal</span><span class="params">()</span> <span class="keyword">throws</span> LifecycleException </span>&#123;</span><br><span class="line"></span><br><span class="line">       <span class="keyword">super</span>.initInternal();</span><br><span class="line"></span><br><span class="line">       <span class="comment">// Initialize adapter</span></span><br><span class="line">       adapter = <span class="keyword">new</span> CoyoteAdapter(<span class="keyword">this</span>);</span><br><span class="line">       protocolHandler.setAdapter(adapter);</span><br><span class="line"></span><br><span class="line">       <span class="comment">// Make sure parseBodyMethodsSet has a default</span></span><br><span class="line">       <span class="keyword">if</span> (<span class="keyword">null</span> == parseBodyMethodsSet) &#123;</span><br><span class="line">           setParseBodyMethods(getParseBodyMethods());</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       <span class="keyword">if</span> (protocolHandler.isAprRequired() &amp;&amp; !AprLifecycleListener.isAprAvailable()) &#123;</span><br><span class="line">           <span class="keyword">throw</span> <span class="keyword">new</span> LifecycleException(sm.getString(<span class="string">&quot;coyoteConnector.protocolHandlerNoApr&quot;</span>,</span><br><span class="line">                   getProtocolHandlerClassName()));</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">if</span> (AprLifecycleListener.isAprAvailable() &amp;&amp; AprLifecycleListener.getUseOpenSSL() &amp;&amp;</span><br><span class="line">               protocolHandler <span class="keyword">instanceof</span> AbstractHttp11JsseProtocol) &#123;</span><br><span class="line">           AbstractHttp11JsseProtocol&lt;?&gt; jsseProtocolHandler =</span><br><span class="line">                   (AbstractHttp11JsseProtocol&lt;?&gt;) protocolHandler;</span><br><span class="line">           <span class="keyword">if</span> (jsseProtocolHandler.isSSLEnabled() &amp;&amp;</span><br><span class="line">                   jsseProtocolHandler.getSslImplementationName() == <span class="keyword">null</span>) &#123;</span><br><span class="line">               <span class="comment">// OpenSSL is compatible with the JSSE configuration, so use it if APR is available</span></span><br><span class="line">               jsseProtocolHandler.setSslImplementationName(OpenSSLImplementation.class.getName());</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       <span class="keyword">try</span> &#123;</span><br><span class="line">           protocolHandler.init();</span><br><span class="line">       &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">           <span class="keyword">throw</span> <span class="keyword">new</span> LifecycleException(</span><br><span class="line">                   sm.getString(<span class="string">&quot;coyoteConnector.protocolHandlerInitializationFailed&quot;</span>), e);</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里可以看到最主要的是 protocolHandler 这个变量，这个的初始化，在这个代码里是看不到 的，这个是由Server.xml配置来的</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">Connector</span> <span class="attr">port</span>=<span class="string">&quot;8080&quot;</span> <span class="attr">protocol</span>=<span class="string">&quot;HTTP/1.1&quot;</span></span></span><br><span class="line"><span class="tag">              <span class="attr">connectionTimeout</span>=<span class="string">&quot;20000&quot;</span></span></span><br><span class="line"><span class="tag">              <span class="attr">redirectPort</span>=<span class="string">&quot;8443&quot;</span> /&gt;</span></span><br><span class="line">   <span class="comment">&lt;!-- A &quot;Connector&quot; using the shared thread pool--&gt;</span></span><br><span class="line">   <span class="comment">&lt;!--</span></span><br><span class="line"><span class="comment">   &lt;Connector executor=&quot;tomcatThreadPool&quot;</span></span><br><span class="line"><span class="comment">              port=&quot;8080&quot; protocol=&quot;HTTP/1.1&quot;</span></span><br><span class="line"><span class="comment">              connectionTimeout=&quot;20000&quot;</span></span><br><span class="line"><span class="comment">              redirectPort=&quot;8443&quot; /&gt;</span></span><br><span class="line"><span class="comment">   --&gt;</span></span><br><span class="line"></span><br><span class="line">   <span class="comment">&lt;!--</span></span><br><span class="line"><span class="comment">   &lt;Connector port=&quot;8443&quot; protocol=&quot;org.apache.coyote.http11.Http11NioProtocol&quot;</span></span><br><span class="line"><span class="comment">              maxThreads=&quot;150&quot; SSLEnabled=&quot;true&quot;&gt;</span></span><br><span class="line"><span class="comment">       &lt;SSLHostConfig&gt;</span></span><br><span class="line"><span class="comment">           &lt;Certificate certificateKeystoreFile=&quot;conf/localhost-rsa.jks&quot;</span></span><br><span class="line"><span class="comment">                        type=&quot;RSA&quot; /&gt;</span></span><br><span class="line"><span class="comment">       &lt;/SSLHostConfig&gt;</span></span><br><span class="line"><span class="comment">   &lt;/Connector&gt;</span></span><br><span class="line"><span class="comment">   --&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>在 Connecotr 的protocol 属性可以看出可以是  <strong>org.apache.coyote.http11.Http11NioProtocol</strong> 也可以是 <strong>HTTP/1.1</strong> 协议版本，以下是  <strong>org.apache.coyote.ProtocolHandler</strong>中各个协议版本的 实现</p>
+ <img src="/2021/05/12/Tomcat8-5%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%BA%8C%E4%B9%8BConnector/1.png" class title="tomcat">
+
+<p>但是在 protocolHandler.init(); 上我们使用 Ctrl+Alt+B 只有两个实现，现在大部分使用还是 HTTP/1.1版本 我们可以查看这个的具体实现 其中   </p>
+<p>   NIO  传统的BIO方式是基于流行进行读写的，而且是阻塞的，整体性能比较差。为了提高I/O性能，JDK与1.4版本引入NIo，他弥补了原来BIO方式的不足，在标准的Java代码中提供了高速、面向块的I/O。通过定义包含数据的类以及块的形式处理数据，这是BIO无法做到的。</p>
+<p>​    NIO2是JDK7新增的文件及网络I/O特性，他继承自NIO，同时添加了众多特性及功能改进，其中最重要的即是对异步I/O（AIO）的支持。</p>
+<p>所有的 ProtocolHandler 的具体实现类都继承 <strong>org.apache.coyote.AbstractProtocol</strong> 这个类 在 protocolHandler.init(); 要选看看 <strong>org.apache.coyote.AbstractProtocol</strong>  的 init（）方法到底做了啥</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">       <span class="keyword">if</span> (getLog().isInfoEnabled()) &#123;</span><br><span class="line">           getLog().info(sm.getString(<span class="string">&quot;abstractProtocolHandler.init&quot;</span>, getName()));</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       <span class="keyword">if</span> (oname == <span class="keyword">null</span>) &#123;</span><br><span class="line">           <span class="comment">// Component not pre-registered so register it</span></span><br><span class="line">           oname = createObjectName();</span><br><span class="line">           <span class="keyword">if</span> (oname != <span class="keyword">null</span>) &#123;</span><br><span class="line">               Registry.getRegistry(<span class="keyword">null</span>, <span class="keyword">null</span>).registerComponent(<span class="keyword">this</span>, oname, <span class="keyword">null</span>);</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       <span class="keyword">if</span> (<span class="keyword">this</span>.domain != <span class="keyword">null</span>) &#123;</span><br><span class="line">           rgOname = <span class="keyword">new</span> ObjectName(domain + <span class="string">&quot;:type=GlobalRequestProcessor,name=&quot;</span> + getName());</span><br><span class="line">           Registry.getRegistry(<span class="keyword">null</span>, <span class="keyword">null</span>).registerComponent(</span><br><span class="line">                   getHandler().getGlobal(), rgOname, <span class="keyword">null</span>);</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       String endpointName = getName();</span><br><span class="line">       endpoint.setName(endpointName.substring(<span class="number">1</span>, endpointName.length()-<span class="number">1</span>));</span><br><span class="line">       endpoint.setDomain(domain);</span><br><span class="line"></span><br><span class="line">       endpoint.init();</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>   这里最主要的是 就是  <em><strong>endpoint.init()</strong></em>  这个代码了，看看里面写了啥 这里有两个实现</p>
+<p>​     <img src="/2021/05/12/Tomcat8-5%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%BA%8C%E4%B9%8BConnector/3.png" class title="tomcat"></p>
+<pre><code><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">AbstractJsseEndpoint</span>&lt;<span class="title">S</span>&gt; <span class="keyword">extends</span> <span class="title">AbstractEndpoint</span>&lt;<span class="title">S</span>&gt; </span>&#123;</span><br><span class="line">   .....   </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</code></pre>
+<p>AbstractJsseEndpoint 还是继承 AbstractEndpoint 我们看看 AbstractEndpoint 个类的 <em><strong>init（）</strong></em> 方法就可以了</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">       <span class="keyword">if</span> (bindOnInit) &#123;</span><br><span class="line">           <span class="comment">//绑定 啥不清楚</span></span><br><span class="line">           bind();</span><br><span class="line">           bindState = BindState.BOUND_ON_INIT;</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">if</span> (<span class="keyword">this</span>.domain != <span class="keyword">null</span>) &#123;</span><br><span class="line">           <span class="comment">// Register endpoint (as ThreadPool - historical name)</span></span><br><span class="line">           oname = <span class="keyword">new</span> ObjectName(domain + <span class="string">&quot;:type=ThreadPool,name=\&quot;&quot;</span> + getName() + <span class="string">&quot;\&quot;&quot;</span>);</span><br><span class="line">           Registry.getRegistry(<span class="keyword">null</span>, <span class="keyword">null</span>).registerComponent(<span class="keyword">this</span>, oname, <span class="keyword">null</span>);</span><br><span class="line"></span><br><span class="line">           ObjectName socketPropertiesOname = <span class="keyword">new</span> ObjectName(domain +</span><br><span class="line">                   <span class="string">&quot;:type=ThreadPool,name=\&quot;&quot;</span> + getName() + <span class="string">&quot;\&quot;,subType=SocketProperties&quot;</span>);</span><br><span class="line">           socketProperties.setObjectName(socketPropertiesOname);</span><br><span class="line">           Registry.getRegistry(<span class="keyword">null</span>, <span class="keyword">null</span>).registerComponent(socketProperties, socketPropertiesOname, <span class="keyword">null</span>);</span><br><span class="line"></span><br><span class="line">           <span class="keyword">for</span> (SSLHostConfig sslHostConfig : findSslHostConfigs()) &#123;</span><br><span class="line">               registerJmx(sslHostConfig);</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>   上面 有一个 bind() 其他就是注册的一些方法，我们看 bind();</p>
+ <img src="/2021/05/12/Tomcat8-5%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%BA%8C%E4%B9%8BConnector/4.png" class title="tomcat"> 
+
+<p>发现 bind() 是一个 abstract 修饰的方法，这里其实也是<strong>模板方法</strong>看看有哪些类实现了 bind() </p>
+ <img src="/2021/05/12/Tomcat8-5%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%BA%8C%E4%B9%8BConnector/5.png" class title="tomcat"> 
+
+<p> 这里我们可以看看 <strong>org.apache.tomcat.util.net.NioEndpoint</strong> 和 <strong>org.apache.tomcat.util.net.Nio2Endpoint</strong> 看看 tomcat是怎么使用 这两种不同 io的 以及这两个io的区别</p>
+<p><strong>org.apache.tomcat.util.net.NioEndpoint</strong> 的 <em><strong>bind()</strong></em> 代码如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">   * Initialize the endpoint.</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">bind</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (!getUseInheritedChannel()) &#123;</span><br><span class="line">          serverSock = ServerSocketChannel.open();</span><br><span class="line">          socketProperties.setProperties(serverSock.socket());</span><br><span class="line">          InetSocketAddress addr = (getAddress()!=<span class="keyword">null</span>?<span class="keyword">new</span> InetSocketAddress(getAddress(),getPort()):<span class="keyword">new</span> InetSocketAddress(getPort()));</span><br><span class="line">          serverSock.socket().bind(addr,getAcceptCount());</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">          <span class="comment">// Retrieve the channel provided by the OS</span></span><br><span class="line">          Channel ic = System.inheritedChannel();</span><br><span class="line">          <span class="keyword">if</span> (ic <span class="keyword">instanceof</span> ServerSocketChannel) &#123;</span><br><span class="line">              serverSock = (ServerSocketChannel) ic;</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="keyword">if</span> (serverSock == <span class="keyword">null</span>) &#123;</span><br><span class="line">              <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(sm.getString(<span class="string">&quot;endpoint.init.bind.inherited&quot;</span>));</span><br><span class="line">          &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      serverSock.configureBlocking(<span class="keyword">true</span>); <span class="comment">//mimic APR behavior</span></span><br><span class="line"></span><br><span class="line">      <span class="comment">// Initialize thread count defaults for acceptor, poller</span></span><br><span class="line">      <span class="keyword">if</span> (acceptorThreadCount == <span class="number">0</span>) &#123;</span><br><span class="line">          <span class="comment">// <span class="doctag">FIXME:</span> Doesn&#x27;t seem to work that well with multiple accept threads</span></span><br><span class="line">          acceptorThreadCount = <span class="number">1</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (pollerThreadCount &lt;= <span class="number">0</span>) &#123;</span><br><span class="line">          <span class="comment">//minimum one poller thread</span></span><br><span class="line">          pollerThreadCount = <span class="number">1</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      setStopLatch(<span class="keyword">new</span> CountDownLatch(pollerThreadCount));</span><br><span class="line"></span><br><span class="line">      <span class="comment">// Initialize SSL if needed</span></span><br><span class="line">      initialiseSsl();</span><br><span class="line"></span><br><span class="line">      selectorPool.open();</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>bind() 看到其实就是端口绑定。</p>
+<p> 这里是 nio 的selector acceptorThreadCount 和 pollerThreadCount 从命名可以看出是 接受连接的线程数 和轮询 连接的线程数，最后是  selectorPool.open(); 点进去 可以看到 我们熟悉的 nio  <strong>java.nio.channels.Selector</strong></p>
+<p>到此，初始化 Connector 就算完成了，接下来就是 处理请求，如果一个连接来了以后 是怎么处理的。逻辑是如何。</p>
+<p>​    </p>
+
+        </div>
+
+        
+
+        
+            <div class="article-nav">
+                
+                    <div class="article-prev">
+                        <a class="prev"
+                           rel="prev"
+                           href="/2021/05/12/Tomcat%E5%86%85%E5%B5%8C%E5%92%8C%E6%9C%8D%E5%8A%A1%E5%90%AF%E5%8A%A8%E7%9A%84%E5%8C%BA%E5%88%AB/"
+                        >
+                            <span class="left arrow-icon flex-center">
+                              <i class="fas fa-chevron-left"></i>
+                            </span>
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">Tomcat内嵌和服务启动的区别</span>
+                                <span class="post-nav-item">上一篇</span>
+                            </span>
+                        </a>
+                    </div>
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                           rel="next"
+                           href="/2021/05/11/Tomcat8-5%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B8%80/"
+                        >
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">Tomcat8.5源码学习一</span>
+                                <span class="post-nav-item">下一篇</span>
+                            </span>
+                            <span class="right arrow-icon flex-center">
+                              <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom">
+            <footer class="footer">
+    <div class="info-container">
+        <div class="copyright-info info-item">
+            &copy;
+            
+              <span>2020</span>&nbsp;-&nbsp;
+            
+            2021&nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;<a href="/">Healthy Mind</a>
+        </div>
+        
+        <div class="theme-info info-item">
+            由 <a target="_blank" href="https://hexo.io">Hexo</a> 驱动&nbsp;|&nbsp;主题&nbsp;<a class="theme-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep v3.4.1</a>
+        </div>
+        
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-bottom-side-tools">
+        <div class="side-tools-container">
+    <ul class="side-tools-list">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-expand-width flex-center">
+            <i class="fas fa-arrows-alt-h"></i>
+        </li>
+
+        <li class="tools-item tool-dark-light-toggle flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list">
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+        
+            <li class="tools-item tool-scroll-to-top flex-center">
+                <i class="arrow-up fas fa-arrow-up"></i>
+                <span class="percent"></span>
+            </li>
+        
+    </ul>
+</div>
+
+    </div>
+
+    
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        
+    </div>
+</div>
+        </aside>
+    
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+
+</main>
+
+
+
+<script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/header-shrink.js"></script><script src="/js/back2top.js"></script><script src="/js/dark-light-toggle.js"></script>
+
+
+
+
+    <script src="/js/code-copy.js"></script>
+
+
+
+
+<div class="post-scripts">
+    
+        <script src="/js/left-side-toggle.js"></script><script src="/js/libs/anime.min.js"></script><script src="/js/toc.js"></script>
+    
+</div>
+
+
+
+</body>
+</html>
