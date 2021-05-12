@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="Healthy Mind">
+    
+    <title>
+        
+            Tomcat8.5源码学习一 |
+        
+        Healthy Mind
+    </title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="shortcut icon" href="/images/logo.png">
+    <link rel="stylesheet" href="/css/font-awesome.min.css">
+    <script id="hexo-configurations">
+    let KEEP = window.KEEP || {};
+    KEEP.hexo_config = {"hostname":"example.com","root":"/","language":"zh-CN"};
+    KEEP.theme_config = {"toc":{"enable":true,"number":true,"expand_all":true,"init_open":false},"style":{"primary_color":"#0066CC","avatar":"/images/logo.png","favicon":"/images/logo.png","article_img_align":"left","left_side_width":"260px","content_max_width":"920px","hover":{"shadow":true,"scale":true},"first_screen":{"enable":true,"background_img":"/images/bg.svg","description":"Keep writing and Keep loving."},"scroll":{"progress_bar":{"enable":true},"percent":{"enable":true}}},"local_search":{"enable":false,"preload":false},"code_copy":{"enable":true,"style":"mac"},"pjax":{"enable":false},"lazyload":{"enable":false},"version":"3.4.1"};
+    KEEP.language_ago = {"second":"%s 秒前","minute":"%s 分钟前","hour":"%s 小时前","day":"%s 天前","week":"%s 周前","month":"%s 月前","year":"%s 年前"};
+  </script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+        <span class="scroll-progress-bar"></span>
+    
+
+    
+</div>
+
+
+<main class="page-container">
+
+    
+
+    <div class="page-main-content">
+
+        <div class="page-main-content-top">
+            <header class="header-wrapper">
+
+    <div class="header-content">
+        <div class="left">
+            <a class="logo-title" href="/">
+                Healthy Mind
+            </a>
+        </div>
+
+        <div class="right">
+            <div class="pc">
+                <ul class="menu-list">
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/"
+                            >
+                                首页
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >
+                                归档
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/categories"
+                            >
+                                分类
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/tags"
+                            >
+                                标签
+                            </a>
+                        </li>
+                    
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/">首页</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives">归档</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/categories">分类</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/tags">标签</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle">
+
+            <div class="main-content">
+
+                
+                    <div class="fade-in-down-animation">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            <span class="title-hover-animation">Tomcat8.5源码学习一</span>
+        </div>
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="/images/logo.png">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">Healthy Mind</span>
+                        
+                            <span class="author-label">Lv2</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;2021-05-11 20:41:42
+    </span>
+    
+        <span class="article-categories article-meta-item">
+            <i class="fas fa-folder"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/categories/tomcat/">tomcat</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+    
+        <span class="article-tags article-meta-item">
+            <i class="fas fa-tags"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/tags/tomcat/">tomcat</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+
+    
+    
+    
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <p>​       tomcat 的源码，看了之后会让人感觉它的设计是如此巧妙，大部分核心组件都是经过高度抽象。</p>
+<p>  这也是第二次看源码了，第一次看源码的时候感觉就像人入大海不知道 从何看起，花了很多时间也只了解了tomcat 里 有这几个类 Server、Service、endpoint、Host、Connector ，后来恰巧看到了《tomcat内核设计剖析》（这部书是基于tomcat7写的，差别不是太大） 这本书后，对tomcat在组件设计即架构方目已经代码的迭代跟新后 是如此的清晰、巧妙的印象更深了，所有后来有时间后就又开始学习tomcat的源码。</p>
+<p>​     我是用的 tomcat 源码版本是 apache-tomcat-8.5.38-src </p>
+<p>   本文主要了解 tomcat的启动到组件的初始化在查看源码前，需要看一下tomcat 的架构图，对tomcat 有哪些组件 ，以及组件与组件直接的关系是怎么样的有一个大概了解，这样对我们查看源码有一定帮助，不至于太过迷茫。</p>
+ <img src="/2021/05/11/Tomcat8-5%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B8%80/0.png" class title="tomcat">
+
+<p>​    首选看 <strong>org.apache.catalina.startup.Bootstrap</strong>  <em><strong>main</strong></em> 方法至于为什么，在catalina.sh 启动命令里有这样的代码</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">elif</span> [ <span class="string">&quot;<span class="variable">$1</span>&quot;</span> = <span class="string">&quot;run&quot;</span> ]; <span class="keyword">then</span></span><br><span class="line"></span><br><span class="line">  <span class="built_in">shift</span></span><br><span class="line">  <span class="keyword">if</span> [ <span class="string">&quot;<span class="variable">$1</span>&quot;</span> = <span class="string">&quot;-security&quot;</span> ] ; <span class="keyword">then</span></span><br><span class="line">    <span class="keyword">if</span> [ <span class="variable">$have_tty</span> -eq 1 ]; <span class="keyword">then</span></span><br><span class="line">      <span class="built_in">echo</span> <span class="string">&quot;Using Security Manager&quot;</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">    <span class="built_in">shift</span></span><br><span class="line">    <span class="built_in">eval</span> <span class="built_in">exec</span> <span class="string">&quot;\&quot;<span class="variable">$_RUNJAVA</span>\&quot;&quot;</span> <span class="string">&quot;\&quot;<span class="variable">$LOGGING_CONFIG</span>\&quot;&quot;</span> <span class="variable">$LOGGING_MANAGER</span> <span class="variable">$JAVA_OPTS</span> <span class="variable">$CATALINA_OPTS</span> \</span><br><span class="line">      -D<span class="variable">$ENDORSED_PROP</span>=<span class="string">&quot;\&quot;<span class="variable">$JAVA_ENDORSED_DIRS</span>\&quot;&quot;</span> \</span><br><span class="line">      -classpath <span class="string">&quot;\&quot;<span class="variable">$CLASSPATH</span>\&quot;&quot;</span> \</span><br><span class="line">      -Djava.security.manager \</span><br><span class="line">      -Djava.security.policy==<span class="string">&quot;\&quot;<span class="variable">$CATALINA_BASE</span>/conf/catalina.policy\&quot;&quot;</span> \</span><br><span class="line">      -Dcatalina.base=<span class="string">&quot;\&quot;<span class="variable">$CATALINA_BASE</span>\&quot;&quot;</span> \</span><br><span class="line">      -Dcatalina.home=<span class="string">&quot;\&quot;<span class="variable">$CATALINA_HOME</span>\&quot;&quot;</span> \</span><br><span class="line">      -Djava.io.tmpdir=<span class="string">&quot;\&quot;<span class="variable">$CATALINA_TMPDIR</span>\&quot;&quot;</span> \</span><br><span class="line">      org.apache.catalina.startup.Bootstrap <span class="string">&quot;<span class="variable">$@</span>&quot;</span> start</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">    <span class="built_in">eval</span> <span class="built_in">exec</span> <span class="string">&quot;\&quot;<span class="variable">$_RUNJAVA</span>\&quot;&quot;</span> <span class="string">&quot;\&quot;<span class="variable">$LOGGING_CONFIG</span>\&quot;&quot;</span> <span class="variable">$LOGGING_MANAGER</span> <span class="variable">$JAVA_OPTS</span> <span class="variable">$CATALINA_OPTS</span> \</span><br><span class="line">      -D<span class="variable">$ENDORSED_PROP</span>=<span class="string">&quot;\&quot;<span class="variable">$JAVA_ENDORSED_DIRS</span>\&quot;&quot;</span> \</span><br><span class="line">      -classpath <span class="string">&quot;\&quot;<span class="variable">$CLASSPATH</span>\&quot;&quot;</span> \</span><br><span class="line">      -Dcatalina.base=<span class="string">&quot;\&quot;<span class="variable">$CATALINA_BASE</span>\&quot;&quot;</span> \</span><br><span class="line">      -Dcatalina.home=<span class="string">&quot;\&quot;<span class="variable">$CATALINA_HOME</span>\&quot;&quot;</span> \</span><br><span class="line">      -Djava.io.tmpdir=<span class="string">&quot;\&quot;<span class="variable">$CATALINA_TMPDIR</span>\&quot;&quot;</span> \</span><br><span class="line">      org.apache.catalina.startup.Bootstrap <span class="string">&quot;<span class="variable">$@</span>&quot;</span> start</span><br><span class="line">  <span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
+
+<p>还有就是在我们启动 tomcat 后可以 用 jps 命令查看启动的tomcat 进程的名字 <strong>Bootstrap</strong></p>
+<p>   下面我们看看 <strong>Bootstrap</strong>  main方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String args[])</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (daemon == <span class="keyword">null</span>) &#123;</span><br><span class="line">          <span class="comment">// Don&#x27;t set daemon until init() has completed</span></span><br><span class="line">          Bootstrap bootstrap = <span class="keyword">new</span> Bootstrap();</span><br><span class="line">          <span class="keyword">try</span> &#123;</span><br><span class="line">              <span class="comment">//初始化 和加载classs </span></span><br><span class="line">              bootstrap.init();</span><br><span class="line">          &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">              handleThrowable(t);</span><br><span class="line">              t.printStackTrace();</span><br><span class="line">              <span class="keyword">return</span>;</span><br><span class="line">          &#125;</span><br><span class="line">          daemon = bootstrap;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      </span><br><span class="line">          Thread.currentThread().setContextClassLoader(daemon.catalinaLoader);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">try</span> &#123;</span><br><span class="line">          String command = <span class="string">&quot;start&quot;</span>;</span><br><span class="line">          <span class="keyword">if</span> (args.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">              command = args[args.length - <span class="number">1</span>];</span><br><span class="line">          &#125;</span><br><span class="line"></span><br><span class="line">          <span class="keyword">if</span> (command.equals(<span class="string">&quot;startd&quot;</span>)) &#123;</span><br><span class="line">              args[args.length - <span class="number">1</span>] = <span class="string">&quot;start&quot;</span>;</span><br><span class="line">             </span><br><span class="line">              daemon.load(args);</span><br><span class="line">              daemon.start();</span><br><span class="line">          &#125; <span class="keyword">else</span> <span class="keyword">if</span> (command.equals(<span class="string">&quot;stopd&quot;</span>)) &#123;</span><br><span class="line">              args[args.length - <span class="number">1</span>] = <span class="string">&quot;stop&quot;</span>;</span><br><span class="line">              daemon.stop();</span><br><span class="line">          &#125; <span class="keyword">else</span> <span class="keyword">if</span> (command.equals(<span class="string">&quot;start&quot;</span>)) &#123;</span><br><span class="line">              daemon.setAwait(<span class="keyword">true</span>);</span><br><span class="line">              <span class="comment">//主要看这两个方法 load和start</span></span><br><span class="line">              daemon.load(args);</span><br><span class="line">              daemon.start();</span><br><span class="line">              <span class="keyword">if</span> (<span class="keyword">null</span> == daemon.getServer()) &#123;</span><br><span class="line">                  System.exit(<span class="number">1</span>);</span><br><span class="line">              &#125;</span><br><span class="line">          &#125; <span class="keyword">else</span> <span class="keyword">if</span> (command.equals(<span class="string">&quot;stop&quot;</span>)) &#123;</span><br><span class="line">              daemon.stopServer(args);</span><br><span class="line">          &#125; <span class="keyword">else</span> <span class="keyword">if</span> (command.equals(<span class="string">&quot;configtest&quot;</span>)) &#123;</span><br><span class="line">              daemon.load(args);</span><br><span class="line">              <span class="keyword">if</span> (<span class="keyword">null</span> == daemon.getServer()) &#123;</span><br><span class="line">                  System.exit(<span class="number">1</span>);</span><br><span class="line">              &#125;</span><br><span class="line">              System.exit(<span class="number">0</span>);</span><br><span class="line">          &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">              log.warn(<span class="string">&quot;Bootstrap: command \&quot;&quot;</span> + command + <span class="string">&quot;\&quot; does not exist.&quot;</span>);</span><br><span class="line">          &#125;</span><br><span class="line">      &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">          <span class="comment">// Unwrap the Exception for clearer error reporting</span></span><br><span class="line">          <span class="keyword">if</span> (t <span class="keyword">instanceof</span> InvocationTargetException &amp;&amp;</span><br><span class="line">                  t.getCause() != <span class="keyword">null</span>) &#123;</span><br><span class="line">              t = t.getCause();</span><br><span class="line">          &#125;</span><br><span class="line">          handleThrowable(t);</span><br><span class="line">          t.printStackTrace();</span><br><span class="line">          System.exit(<span class="number">1</span>);</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>我们主要查看 这里面的两个方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">else</span> <span class="keyword">if</span> (command.equals(<span class="string">&quot;start&quot;</span>)) &#123;</span><br><span class="line">               daemon.setAwait(<span class="keyword">true</span>);</span><br><span class="line">               <span class="comment">//主要看这两个方法 load和start</span></span><br><span class="line">               daemon.load(args);</span><br><span class="line">               daemon.start();</span><br><span class="line">               <span class="keyword">if</span> (<span class="keyword">null</span> == daemon.getServer()) &#123;</span><br><span class="line">                   System.exit(<span class="number">1</span>);</span><br><span class="line">               &#125;</span><br><span class="line">           &#125;</span><br></pre></td></tr></table></figure>
+
+<p>load方法代码如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">load</span><span class="params">(String[] arguments)</span></span></span><br><span class="line"><span class="function">       <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line"></span><br><span class="line">       <span class="comment">// Call the load() method</span></span><br><span class="line">       String methodName = <span class="string">&quot;load&quot;</span>;</span><br><span class="line">       Object param[];</span><br><span class="line">       Class&lt;?&gt; paramTypes[];</span><br><span class="line">       <span class="keyword">if</span> (arguments==<span class="keyword">null</span> || arguments.length==<span class="number">0</span>) &#123;</span><br><span class="line">           paramTypes = <span class="keyword">null</span>;</span><br><span class="line">           param = <span class="keyword">null</span>;</span><br><span class="line">       &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">           paramTypes = <span class="keyword">new</span> Class[<span class="number">1</span>];</span><br><span class="line">           paramTypes[<span class="number">0</span>] = arguments.getClass();</span><br><span class="line">           param = <span class="keyword">new</span> Object[<span class="number">1</span>];</span><br><span class="line">           param[<span class="number">0</span>] = arguments;</span><br><span class="line">       &#125;</span><br><span class="line">    <span class="comment">//主要是 catalinaDaemon这个对象的load方法 </span></span><br><span class="line">       Method method =</span><br><span class="line">           catalinaDaemon.getClass().getMethod(methodName, paramTypes);</span><br><span class="line">       <span class="keyword">if</span> (log.isDebugEnabled())</span><br><span class="line">           log.debug(<span class="string">&quot;Calling startup class &quot;</span> + method);</span><br><span class="line">       method.invoke(catalinaDaemon, param);</span><br><span class="line"></span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>catalinaDaemon 是通过反射加载的，我们可以看看 catalinaDaemon这个变量是在什么地方进行赋值的 ，我们在文件里搜一下发现是 Bootstrap.init()方法中进行赋值的</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line"></span><br><span class="line">       initClassLoaders();</span><br><span class="line"></span><br><span class="line">       Thread.currentThread().setContextClassLoader(catalinaLoader);</span><br><span class="line"></span><br><span class="line">       SecurityClassLoad.securityClassLoad(catalinaLoader);</span><br><span class="line"></span><br><span class="line">       <span class="comment">// Load our startup class and call its process() method</span></span><br><span class="line">       <span class="keyword">if</span> (log.isDebugEnabled())</span><br><span class="line">           log.debug(<span class="string">&quot;Loading startup class&quot;</span>);</span><br><span class="line">       Class&lt;?&gt; startupClass = catalinaLoader.loadClass(<span class="string">&quot;org.apache.catalina.startup.Catalina&quot;</span>);</span><br><span class="line">       Object startupInstance = startupClass.getConstructor().newInstance();</span><br><span class="line"></span><br><span class="line">       <span class="comment">// Set the shared extensions class loader</span></span><br><span class="line">       <span class="keyword">if</span> (log.isDebugEnabled())</span><br><span class="line">           log.debug(<span class="string">&quot;Setting startup class properties&quot;</span>);</span><br><span class="line">       String methodName = <span class="string">&quot;setParentClassLoader&quot;</span>;</span><br><span class="line">       Class&lt;?&gt; paramTypes[] = <span class="keyword">new</span> Class[<span class="number">1</span>];</span><br><span class="line">       paramTypes[<span class="number">0</span>] = Class.forName(<span class="string">&quot;java.lang.ClassLoader&quot;</span>);</span><br><span class="line">       Object paramValues[] = <span class="keyword">new</span> Object[<span class="number">1</span>];</span><br><span class="line">       paramValues[<span class="number">0</span>] = sharedLoader;</span><br><span class="line">       Method method =</span><br><span class="line">           startupInstance.getClass().getMethod(methodName, paramTypes);</span><br><span class="line">       method.invoke(startupInstance, paramValues);</span><br><span class="line">      <span class="comment">//catalinaDaemon赋值</span></span><br><span class="line">       catalinaDaemon = startupInstance;</span><br><span class="line"></span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p><em>catalinaDaemon = startupInstance;</em> 我们可以看到 这个类其实就是  <strong>org.apache.catalina.startup.Catalina</strong></p>
+<p>那调用 load方法就是通反射调用 <strong>org.apache.catalina.startup.Catalina</strong>  的load方法 可以看看 <strong>org.apache.catalina.startup.Catalina</strong> 里面有没有load方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">    * Start a new server instance.</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">load</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">       <span class="keyword">if</span> (loaded) &#123;</span><br><span class="line">           <span class="keyword">return</span>;</span><br><span class="line">       &#125;</span><br><span class="line">       loaded = <span class="keyword">true</span>;</span><br><span class="line"></span><br><span class="line">       <span class="keyword">long</span> t1 = System.nanoTime();</span><br><span class="line">    ...</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p> 还真有，上面还有一个注释，这就很明显了 。</p>
+<p> 我们可以看看这个方法里面的具体内容</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">load</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">       <span class="keyword">if</span> (loaded) &#123;</span><br><span class="line">           <span class="keyword">return</span>;</span><br><span class="line">       &#125;</span><br><span class="line">       loaded = <span class="keyword">true</span>;</span><br><span class="line"></span><br><span class="line">       <span class="keyword">long</span> t1 = System.nanoTime();</span><br><span class="line"></span><br><span class="line">       initDirs();</span><br><span class="line"></span><br><span class="line">       <span class="comment">// Before digester - it may be needed</span></span><br><span class="line">       initNaming();</span><br><span class="line"></span><br><span class="line">       <span class="comment">// Create and execute our Digester</span></span><br><span class="line">       Digester digester = createStartDigester();</span><br><span class="line"></span><br><span class="line">       InputSource inputSource = <span class="keyword">null</span>;</span><br><span class="line">       InputStream inputStream = <span class="keyword">null</span>;</span><br><span class="line">       File file = <span class="keyword">null</span>;</span><br><span class="line">       <span class="keyword">try</span> &#123;</span><br><span class="line">           <span class="keyword">try</span> &#123;</span><br><span class="line">               file = configFile();</span><br><span class="line">               inputStream = <span class="keyword">new</span> FileInputStream(file);</span><br><span class="line">               inputSource = <span class="keyword">new</span> InputSource(file.toURI().toURL().toString());</span><br><span class="line">           &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">               <span class="keyword">if</span> (log.isDebugEnabled()) &#123;</span><br><span class="line">                   log.debug(sm.getString(<span class="string">&quot;catalina.configFail&quot;</span>, file), e);</span><br><span class="line">               &#125;</span><br><span class="line">           &#125;</span><br><span class="line">           <span class="keyword">if</span> (inputStream == <span class="keyword">null</span>) &#123;</span><br><span class="line">               <span class="keyword">try</span> &#123;</span><br><span class="line">                   inputStream = getClass().getClassLoader()</span><br><span class="line">                       .getResourceAsStream(getConfigFile());</span><br><span class="line">                   inputSource = <span class="keyword">new</span> InputSource</span><br><span class="line">                       (getClass().getClassLoader()</span><br><span class="line">                        .getResource(getConfigFile()).toString());</span><br><span class="line">               &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                   <span class="keyword">if</span> (log.isDebugEnabled()) &#123;</span><br><span class="line">                       log.debug(sm.getString(<span class="string">&quot;catalina.configFail&quot;</span>,</span><br><span class="line">                               getConfigFile()), e);</span><br><span class="line">                   &#125;</span><br><span class="line">               &#125;</span><br><span class="line">           &#125;</span><br><span class="line"></span><br><span class="line">           <span class="comment">// This should be included in catalina.jar</span></span><br><span class="line">           <span class="comment">// Alternative: don&#x27;t bother with xml, just create it manually.</span></span><br><span class="line">           <span class="keyword">if</span> (inputStream == <span class="keyword">null</span>) &#123;</span><br><span class="line">               <span class="keyword">try</span> &#123;</span><br><span class="line">                   inputStream = getClass().getClassLoader()</span><br><span class="line">                           .getResourceAsStream(<span class="string">&quot;server-embed.xml&quot;</span>);</span><br><span class="line">                   inputSource = <span class="keyword">new</span> InputSource</span><br><span class="line">                   (getClass().getClassLoader()</span><br><span class="line">                           .getResource(<span class="string">&quot;server-embed.xml&quot;</span>).toString());</span><br><span class="line">               &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                   <span class="keyword">if</span> (log.isDebugEnabled()) &#123;</span><br><span class="line">                       log.debug(sm.getString(<span class="string">&quot;catalina.configFail&quot;</span>,</span><br><span class="line">                               <span class="string">&quot;server-embed.xml&quot;</span>), e);</span><br><span class="line">                   &#125;</span><br><span class="line">               &#125;</span><br><span class="line">           &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">           <span class="keyword">if</span> (inputStream == <span class="keyword">null</span> || inputSource == <span class="keyword">null</span>) &#123;</span><br><span class="line">               <span class="keyword">if</span>  (file == <span class="keyword">null</span>) &#123;</span><br><span class="line">                   log.warn(sm.getString(<span class="string">&quot;catalina.configFail&quot;</span>,</span><br><span class="line">                           getConfigFile() + <span class="string">&quot;] or [server-embed.xml]&quot;</span>));</span><br><span class="line">               &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                   log.warn(sm.getString(<span class="string">&quot;catalina.configFail&quot;</span>,</span><br><span class="line">                           file.getAbsolutePath()));</span><br><span class="line">                   <span class="keyword">if</span> (file.exists() &amp;&amp; !file.canRead()) &#123;</span><br><span class="line">                       log.warn(<span class="string">&quot;Permissions incorrect, read permission is not allowed on the file.&quot;</span>);</span><br><span class="line">                   &#125;</span><br><span class="line">               &#125;</span><br><span class="line">               <span class="keyword">return</span>;</span><br><span class="line">           &#125;</span><br><span class="line"></span><br><span class="line">           <span class="keyword">try</span> &#123;</span><br><span class="line">               inputSource.setByteStream(inputStream);</span><br><span class="line">               digester.push(<span class="keyword">this</span>);</span><br><span class="line">               digester.parse(inputSource);</span><br><span class="line">           &#125; <span class="keyword">catch</span> (SAXParseException spe) &#123;</span><br><span class="line">               log.warn(<span class="string">&quot;Catalina.start using &quot;</span> + getConfigFile() + <span class="string">&quot;: &quot;</span> +</span><br><span class="line">                       spe.getMessage());</span><br><span class="line">               <span class="keyword">return</span>;</span><br><span class="line">           &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">               log.warn(<span class="string">&quot;Catalina.start using &quot;</span> + getConfigFile() + <span class="string">&quot;: &quot;</span> , e);</span><br><span class="line">               <span class="keyword">return</span>;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">           <span class="keyword">if</span> (inputStream != <span class="keyword">null</span>) &#123;</span><br><span class="line">               <span class="keyword">try</span> &#123;</span><br><span class="line">                   inputStream.close();</span><br><span class="line">               &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">                   <span class="comment">// Ignore</span></span><br><span class="line">               &#125;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       getServer().setCatalina(<span class="keyword">this</span>);</span><br><span class="line">       getServer().setCatalinaHome(Bootstrap.getCatalinaHomeFile());</span><br><span class="line">       getServer().setCatalinaBase(Bootstrap.getCatalinaBaseFile());</span><br><span class="line"></span><br><span class="line">       <span class="comment">// Stream redirection</span></span><br><span class="line">       initStreams();</span><br><span class="line"></span><br><span class="line">       <span class="comment">// Start the new server</span></span><br><span class="line">       <span class="keyword">try</span> &#123;</span><br><span class="line">           getServer().init();</span><br><span class="line">       &#125; <span class="keyword">catch</span> (LifecycleException e) &#123;</span><br><span class="line">           <span class="keyword">if</span> (Boolean.getBoolean(<span class="string">&quot;org.apache.catalina.startup.EXIT_ON_INIT_FAILURE&quot;</span>)) &#123;</span><br><span class="line">               <span class="keyword">throw</span> <span class="keyword">new</span> java.lang.Error(e);</span><br><span class="line">           &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">               log.error(<span class="string">&quot;Catalina.start&quot;</span>, e);</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       <span class="keyword">long</span> t2 = System.nanoTime();</span><br><span class="line">       <span class="keyword">if</span>(log.isInfoEnabled()) &#123;</span><br><span class="line">           log.info(<span class="string">&quot;Initialization processed in &quot;</span> + ((t2 - t1) / <span class="number">1000000</span>) + <span class="string">&quot; ms&quot;</span>);</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p> 可以看出，tomcat的方法命名还是很清晰的，</p>
+<p>​       initDirs();  初始化目录</p>
+<p>​        digester.parse(inputSource); 解析 tomcat配置文件 即 Server.xml 这里用的是apache 的digester 解析的</p>
+<p>​       getServer().setCatalina(this);<br>​        getServer().setCatalinaHome(Bootstrap.getCatalinaHomeFile());<br>​        getServer().setCatalinaBase(Bootstrap.getCatalinaBaseFile());</p>
+<p>这几个是设置Server 文件路径 的 ，看名字就能猜到</p>
+<p> getServer().init(); </p>
+<p> 这个就明显了初始化 记住，这个方法是 Bootstrap.load()方法中调用的 </p>
+<p>idea  Ctrl+Alt+B   getServer().init();   方法发现我们跳到 了 <strong>org.apache.catalina.util.LifecycleBase</strong></p>
+<p>这个类是tomcat 抽象出来的 一个生命周期接口 很多tomcat 的组件都是 实现的这个接口 Ctrl+Alt+B 我们可以看到这个类的实现在tomcat中有98个</p>
+  <img src="/2021/05/11/Tomcat8-5%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B8%80/1.png" class title="tomcat">
+
+<p>在 <strong>org.apache.catalina.util.LifecycleBase</strong> *init()*方法中 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">()</span> <span class="keyword">throws</span> LifecycleException </span>&#123;</span><br><span class="line">       <span class="keyword">if</span> (!state.equals(LifecycleState.NEW)) &#123;</span><br><span class="line">           invalidTransition(Lifecycle.BEFORE_INIT_EVENT);</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       <span class="keyword">try</span> &#123;</span><br><span class="line">           setStateInternal(LifecycleState.INITIALIZING, <span class="keyword">null</span>, <span class="keyword">false</span>);</span><br><span class="line">           initInternal();</span><br><span class="line">           setStateInternal(LifecycleState.INITIALIZED, <span class="keyword">null</span>, <span class="keyword">false</span>);</span><br><span class="line">       &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">           ExceptionUtils.handleThrowable(t);</span><br><span class="line">           setStateInternal(LifecycleState.FAILED, <span class="keyword">null</span>, <span class="keyword">false</span>);</span><br><span class="line">           <span class="keyword">throw</span> <span class="keyword">new</span> LifecycleException(</span><br><span class="line">                   sm.getString(<span class="string">&quot;lifecycleBase.initFail&quot;</span>,toString()), t);</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们可以看到有一个 initInternal()方法 在这个方法上使用 Ctrl+Alt+B找到 <strong>org.apache.catalina.core.StandardServer</strong> 这个类，因为之前我们是通过  getServer().init(); 方法跳过去的而在 getServer() 返回的是一个 Server 接口 ,Server接口的实现只有一个 <strong>org.apache.catalina.core.StandardServe</strong></p>
+<img src="/2021/05/11/Tomcat8-5%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B8%80/2.png" class title="tomcat">
+
+<p>在 <em><strong>org.apache.catalina.core.StandardServer</strong></em> 的 <em><strong>initInternal()</strong></em> 如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">initInternal</span><span class="params">()</span> <span class="keyword">throws</span> LifecycleException </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">super</span>.initInternal();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Register global String cache</span></span><br><span class="line">        <span class="comment">// Note although the cache is global, if there are multiple Servers</span></span><br><span class="line">        <span class="comment">// present in the JVM (may happen when embedding) then the same cache</span></span><br><span class="line">        <span class="comment">// will be registered under multiple names</span></span><br><span class="line">        onameStringCache = register(<span class="keyword">new</span> StringCache(), <span class="string">&quot;type=StringCache&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Register the MBeanFactory</span></span><br><span class="line">        MBeanFactory factory = <span class="keyword">new</span> MBeanFactory();</span><br><span class="line">        factory.setContainer(<span class="keyword">this</span>);</span><br><span class="line">        onameMBeanFactory = register(factory, <span class="string">&quot;type=MBeanFactory&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Register the naming resources</span></span><br><span class="line">        globalNamingResources.init();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Populate the extension validator with JARs from common and shared</span></span><br><span class="line">        <span class="comment">// class loaders</span></span><br><span class="line">        <span class="keyword">if</span> (getCatalina() != <span class="keyword">null</span>) &#123;</span><br><span class="line">            ClassLoader cl = getCatalina().getParentClassLoader();</span><br><span class="line">            <span class="comment">// Walk the class loader hierarchy. Stop at the system class loader.</span></span><br><span class="line">            <span class="comment">// This will add the shared (if present) and common class loaders</span></span><br><span class="line">            <span class="keyword">while</span> (cl != <span class="keyword">null</span> &amp;&amp; cl != ClassLoader.getSystemClassLoader()) &#123;</span><br><span class="line">                <span class="keyword">if</span> (cl <span class="keyword">instanceof</span> URLClassLoader) &#123;</span><br><span class="line">                    URL[] urls = ((URLClassLoader) cl).getURLs();</span><br><span class="line">                    <span class="keyword">for</span> (URL url : urls) &#123;</span><br><span class="line">                        <span class="keyword">if</span> (url.getProtocol().equals(<span class="string">&quot;file&quot;</span>)) &#123;</span><br><span class="line">                            <span class="keyword">try</span> &#123;</span><br><span class="line">                                File f = <span class="keyword">new</span> File (url.toURI());</span><br><span class="line">                                <span class="keyword">if</span> (f.isFile() &amp;&amp;</span><br><span class="line">                                        f.getName().endsWith(<span class="string">&quot;.jar&quot;</span>)) &#123;</span><br><span class="line">                                    ExtensionValidator.addSystemResource(f);</span><br><span class="line">                                &#125;</span><br><span class="line">                            &#125; <span class="keyword">catch</span> (URISyntaxException e) &#123;</span><br><span class="line">                                <span class="comment">// Ignore</span></span><br><span class="line">                            &#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">                                <span class="comment">// Ignore</span></span><br><span class="line">                            &#125;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">                cl = cl.getParent();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// Initialize our defined Services </span></span><br><span class="line">        <span class="comment">//循环初始化Services 服务</span></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; services.length; i++) &#123;</span><br><span class="line">            services[i].init();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>以此类推 <strong>org.apache.catalina.core.StandardService</strong> 的 <em><strong>initInternal()</strong></em> 方法如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line">   <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">initInternal</span><span class="params">()</span> <span class="keyword">throws</span> LifecycleException </span>&#123;</span><br><span class="line"></span><br><span class="line">       <span class="keyword">super</span>.initInternal();</span><br><span class="line"></span><br><span class="line">       <span class="keyword">if</span> (engine != <span class="keyword">null</span>) &#123;</span><br><span class="line">           engine.init();</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       <span class="comment">// Initialize any Executors</span></span><br><span class="line">       <span class="keyword">for</span> (Executor executor : findExecutors()) &#123;</span><br><span class="line">           <span class="keyword">if</span> (executor <span class="keyword">instanceof</span> JmxEnabled) &#123;</span><br><span class="line">               ((JmxEnabled) executor).setDomain(getDomain());</span><br><span class="line">           &#125;</span><br><span class="line">           executor.init();</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       <span class="comment">// Initialize mapper listener</span></span><br><span class="line">       mapperListener.init();</span><br><span class="line"></span><br><span class="line">       <span class="comment">// Initialize our defined Connectors</span></span><br><span class="line">       <span class="keyword">synchronized</span> (connectorsLock) &#123;</span><br><span class="line">           <span class="keyword">for</span> (Connector connector : connectors) &#123;</span><br><span class="line">               <span class="keyword">try</span> &#123;</span><br><span class="line">                   connector.init();</span><br><span class="line">               &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                   String message = sm.getString(</span><br><span class="line">                           <span class="string">&quot;standardService.connector.initFailed&quot;</span>, connector);</span><br><span class="line">                   log.error(message, e);</span><br><span class="line"></span><br><span class="line">                   <span class="keyword">if</span> (Boolean.getBoolean(<span class="string">&quot;org.apache.catalina.startup.EXIT_ON_INIT_FAILURE&quot;</span>))</span><br><span class="line">                       <span class="keyword">throw</span> <span class="keyword">new</span> LifecycleException(message);</span><br><span class="line">               &#125;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>到这里可以看到 Connector 是可以有多个的和一开始的 tomcat 架构图中 各个组件 是一一对应的关系</p>
+<p>对于tomcat大部分组件都可以 在架构图上找到并且以这种方式进行查看代码。</p>
+
+        </div>
+
+        
+
+        
+            <div class="article-nav">
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                           rel="next"
+                           href="/2021/05/11/Guava%E4%B8%ADEventBus%E7%9A%84%E4%BD%BF%E7%94%A8%E5%92%8C%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86/"
+                        >
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">Guava中EventBus的使用和实现原理</span>
+                                <span class="post-nav-item">下一篇</span>
+                            </span>
+                            <span class="right arrow-icon flex-center">
+                              <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom">
+            <footer class="footer">
+    <div class="info-container">
+        <div class="copyright-info info-item">
+            &copy;
+            
+              <span>2020</span>&nbsp;-&nbsp;
+            
+            2021&nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;<a href="/">Healthy Mind</a>
+        </div>
+        
+        <div class="theme-info info-item">
+            由 <a target="_blank" href="https://hexo.io">Hexo</a> 驱动&nbsp;|&nbsp;主题&nbsp;<a class="theme-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep v3.4.1</a>
+        </div>
+        
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-bottom-side-tools">
+        <div class="side-tools-container">
+    <ul class="side-tools-list">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-expand-width flex-center">
+            <i class="fas fa-arrows-alt-h"></i>
+        </li>
+
+        <li class="tools-item tool-dark-light-toggle flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list">
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+        
+            <li class="tools-item tool-scroll-to-top flex-center">
+                <i class="arrow-up fas fa-arrow-up"></i>
+                <span class="percent"></span>
+            </li>
+        
+    </ul>
+</div>
+
+    </div>
+
+    
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        
+    </div>
+</div>
+        </aside>
+    
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+
+</main>
+
+
+
+<script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/header-shrink.js"></script><script src="/js/back2top.js"></script><script src="/js/dark-light-toggle.js"></script>
+
+
+
+
+    <script src="/js/code-copy.js"></script>
+
+
+
+
+<div class="post-scripts">
+    
+        <script src="/js/left-side-toggle.js"></script><script src="/js/libs/anime.min.js"></script><script src="/js/toc.js"></script>
+    
+</div>
+
+
+
+</body>
+</html>
