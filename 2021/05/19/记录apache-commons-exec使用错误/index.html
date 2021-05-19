@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="Healthy Mind">
+    
+    <title>
+        
+            记录apache-commons-exec使用错误 |
+        
+        Healthy Mind
+    </title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="shortcut icon" href="/images/logo.png">
+    <link rel="stylesheet" href="/css/font-awesome.min.css">
+    <script id="hexo-configurations">
+    let KEEP = window.KEEP || {};
+    KEEP.hexo_config = {"hostname":"example.com","root":"/","language":"zh-CN"};
+    KEEP.theme_config = {"toc":{"enable":true,"number":true,"expand_all":true,"init_open":false},"style":{"primary_color":"#0066CC","avatar":"/images/logo.png","favicon":"/images/logo.png","article_img_align":"left","left_side_width":"260px","content_max_width":"920px","hover":{"shadow":true,"scale":true},"first_screen":{"enable":true,"background_img":"/images/bg.svg","description":"Keep writing and Keep loving."},"scroll":{"progress_bar":{"enable":true},"percent":{"enable":true}}},"local_search":{"enable":false,"preload":false},"code_copy":{"enable":true,"style":"mac"},"pjax":{"enable":false},"lazyload":{"enable":false},"version":"3.4.1"};
+    KEEP.language_ago = {"second":"%s 秒前","minute":"%s 分钟前","hour":"%s 小时前","day":"%s 天前","week":"%s 周前","month":"%s 月前","year":"%s 年前"};
+  </script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+        <span class="scroll-progress-bar"></span>
+    
+
+    
+</div>
+
+
+<main class="page-container">
+
+    
+
+    <div class="page-main-content">
+
+        <div class="page-main-content-top">
+            <header class="header-wrapper">
+
+    <div class="header-content">
+        <div class="left">
+            <a class="logo-title" href="/">
+                Healthy Mind
+            </a>
+        </div>
+
+        <div class="right">
+            <div class="pc">
+                <ul class="menu-list">
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/"
+                            >
+                                首页
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >
+                                归档
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/categories"
+                            >
+                                分类
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/tags"
+                            >
+                                标签
+                            </a>
+                        </li>
+                    
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/">首页</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives">归档</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/categories">分类</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/tags">标签</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle">
+
+            <div class="main-content">
+
+                
+                    <div class="fade-in-down-animation">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            <span class="title-hover-animation">记录apache-commons-exec使用错误</span>
+        </div>
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="/images/logo.png">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">Healthy Mind</span>
+                        
+                            <span class="author-label">Lv3</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;2021-05-19 09:52:37
+    </span>
+    
+    
+        <span class="article-tags article-meta-item">
+            <i class="fas fa-tags"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/tags/commons-exec/">commons-exec</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+
+    
+    
+    
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <p>​     在我们需要启动一个进程的时候可以使用 java 原始的 ProccessBuilder 或使用apache-commons-exec执行命令的时候，其实commons-exec是对ProcessBuidler的一个封装</p>
+<p> 例如</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">ShellExecutor</span></span>&#123;</span><br><span class="line">     <span class="keyword">private</span>   DefaultExecutor executor ;</span><br><span class="line"></span><br><span class="line">       <span class="function"><span class="keyword">public</span> <span class="title">ShellExecutor</span><span class="params">()</span> </span>&#123;</span><br><span class="line">           <span class="keyword">this</span>.executor = <span class="keyword">new</span> DefaultExecutor();</span><br><span class="line">           ExecuteWatchdog watchdog = <span class="keyword">new</span> ExecuteWatchdog(COMMAND_EXEC_TIME_OUT);</span><br><span class="line">           <span class="keyword">this</span>.executor.setWatchdog(watchdog);</span><br><span class="line"></span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       <span class="function"><span class="keyword">public</span> BufferedReader <span class="title">exec</span><span class="params">(CommandLine commandLine)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">              PipedInputStream pis = <span class="keyword">new</span> PipedInputStream();</span><br><span class="line">               <span class="comment">//设置输出流</span></span><br><span class="line">              PipedOutputStream pos = <span class="keyword">new</span> PipedOutputStream(pis);</span><br><span class="line">               <span class="comment">//设置标准输出和错误输出</span></span><br><span class="line">              PumpStreamHandler ps = <span class="keyword">new</span> PumpStreamHandler(pos,pos);</span><br><span class="line">              <span class="comment">//设置handler 表示异步执行</span></span><br><span class="line">              DefaultExecuteResultHandler handler = <span class="keyword">new</span> DefaultExecuteResultHandler();</span><br><span class="line">              executor.setStreamHandler(ps);</span><br><span class="line">              executor.execute(commandLine, handler);</span><br><span class="line">               <span class="comment">//返回执行的输出流</span></span><br><span class="line">              <span class="keyword">return</span> <span class="keyword">new</span> BufferedReader(<span class="keyword">new</span> InputStreamReader(pis, Charset.defaultCharset()));</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>  这主要发现的错误是在 CommandLine 的构建上</p>
+<p>   在 JAVA的 ProcessBudiler中 命令参数是分别放在不同的数组中的，在构建的CommandLine 应该是命令和参数分开放置，不然会报一些奇怪的错误，而且commons-exec没有log,很难排查错误</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> CommandLine <span class="title">createBackupCommand</span><span class="params">(CommandConfig.BackupRestoreParam param)</span></span>&#123;</span><br><span class="line">       Objects.requireNonNull(param.host,<span class="string">&quot;数据库地址不能为空!&quot;</span>);</span><br><span class="line">       String command = getShellDir()+<span class="string">&quot;/pg_dump&quot;</span>;</span><br><span class="line">       String commandParam = <span class="string">&quot;--dbname=postgres://%s:%s@%s:%s/%s -v -f %s &quot;</span>;</span><br><span class="line">       commandParam = String.format(commandParam, param.userName, param.password, param.host, param.port, param.dbName, param.backFilePath);</span><br><span class="line">       <span class="comment">//命令</span></span><br><span class="line">       CommandLine commandLine = <span class="keyword">new</span> CommandLine(command);</span><br><span class="line">      <span class="comment">//参数</span></span><br><span class="line">       commandLine.addArguments(commandParam);</span><br><span class="line">       <span class="keyword">return</span> commandLine;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>commons-exec 执行命令源码如下</p>
+<p><strong>org.apache.commons.exec.launcher.Java13CommandLauncher</strong> 源码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Process <span class="title">exec</span><span class="params">(<span class="keyword">final</span> CommandLine cmd, <span class="keyword">final</span> Map&lt;String, String&gt; env,</span></span></span><br><span class="line"><span class="function"><span class="params">            <span class="keyword">final</span> File workingDir)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">final</span> String[] envVars = EnvironmentUtils.toStrings(env);</span><br><span class="line">        <span class="comment">//这里调用 CommandLine的 toStrings()方法</span></span><br><span class="line">        <span class="keyword">return</span> Runtime.getRuntime().exec(cmd.toStrings(),</span><br><span class="line">                envVars, workingDir);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>在看看 <strong>org.apache.commons.exec.CommandLine</strong> toStrings方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> String[] toStrings() &#123;</span><br><span class="line">      <span class="keyword">final</span> String[] result = <span class="keyword">new</span> String[arguments.size() + <span class="number">1</span>];</span><br><span class="line">      result[<span class="number">0</span>] = <span class="keyword">this</span>.getExecutable();</span><br><span class="line">      System.arraycopy(getArguments(), <span class="number">0</span>, result, <span class="number">1</span>, result.length-<span class="number">1</span>);</span><br><span class="line">      <span class="keyword">return</span> result;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里返回的是数组</p>
+<p>还有一个奇怪的问题，我使用单点的Java进程执行，其实是可以解析命令和参数一起放置的</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.trs.exec;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.apache.commons.exec.*;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.*;</span><br><span class="line"><span class="keyword">import</span> java.nio.charset.Charset;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.ExecutorService;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.Executors;</span><br><span class="line"><span class="keyword">import</span> java.util.logging.Logger;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Description</span></span></span><br><span class="line"><span class="comment"> * <span class="doctag">@DATE</span> 2021.5.15 17:12</span></span><br><span class="line"><span class="comment"> **/</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TrsExce</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line"></span><br><span class="line">        BufferedReader reader =  exeCommand(<span class="keyword">null</span>);</span><br><span class="line">        <span class="keyword">if</span> (args.length &gt; <span class="number">1</span>)&#123;</span><br><span class="line">            reader =  exeCommand(args[<span class="number">0</span>]);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        String line = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">while</span> ((line = reader.readLine())  != <span class="keyword">null</span>)&#123;</span><br><span class="line">            Logger.getGlobal().info(line);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> BufferedReader <span class="title">exeCommand</span><span class="params">(String cmd)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">      <span class="keyword">if</span>(cmd == <span class="keyword">null</span>)&#123;</span><br><span class="line">          cmd = <span class="string">&quot;/opt/apache-tomcat-7.0.81-8085-kg3/webapps/tckg/WEB-INF/classes/shell/pg_dump --dbname=postgres://postgres:postgres@192.168.1.53:5432/trskg3_tc -v -f /home/postgres/trskg3_tc_20210518092525.dump &quot;</span>;</span><br><span class="line"></span><br><span class="line">      &#125;</span><br><span class="line">        CommandLine cmdLine = CommandLine.parse(cmd);</span><br><span class="line"></span><br><span class="line">        DefaultExecutor executor = <span class="keyword">new</span> DefaultExecutor();</span><br><span class="line">        PipedOutputStream outputStream = <span class="keyword">new</span> PipedOutputStream();</span><br><span class="line">        PipedInputStream pis = <span class="keyword">new</span> PipedInputStream(outputStream);</span><br><span class="line">        PumpStreamHandler pumpStreamHandler = <span class="keyword">new</span> PumpStreamHandler(outputStream,outputStream);</span><br><span class="line">        <span class="comment">//设置输出流</span></span><br><span class="line">        executor.setStreamHandler(pumpStreamHandler);</span><br><span class="line">        <span class="comment">//设置 进程最大执行时间</span></span><br><span class="line">        ExecuteWatchdog watchdog = <span class="keyword">new</span> ExecuteWatchdog(<span class="number">1000</span> * <span class="number">60</span> * <span class="number">30</span>);</span><br><span class="line">        executor.setWatchdog(watchdog);</span><br><span class="line">        executor.execute(cmdLine,<span class="keyword">new</span> DefaultExecuteResultHandler()); <span class="comment">//设置异步</span></span><br><span class="line">        BufferedReader reader = <span class="keyword">new</span> BufferedReader(<span class="keyword">new</span> InputStreamReader(pis, Charset.forName(<span class="string">&quot;GBK&quot;</span>)));</span><br><span class="line">        <span class="keyword">return</span> reader;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>在单独的java进程中以上是可以执行的，但是在tomcat7中就不行，应该是类加载器加载了不同版本的commons-exec.还没找到具体原因，这里记录一下。</p>
+
+        </div>
+
+        
+
+        
+            <div class="article-nav">
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                           rel="next"
+                           href="/2021/05/19/http1-1%E5%AE%9E%E7%8E%B0%E6%9C%8D%E5%8A%A1%E5%99%A8%E8%BE%93%E5%87%BA%E6%8C%81%E7%BB%AD%E8%BE%93%E5%87%BA%E6%95%B0%E6%8D%AE/"
+                        >
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">http1.1实现服务器输出持续输出数据</span>
+                                <span class="post-nav-item">下一篇</span>
+                            </span>
+                            <span class="right arrow-icon flex-center">
+                              <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom">
+            <footer class="footer">
+    <div class="info-container">
+        <div class="copyright-info info-item">
+            &copy;
+            
+              <span>2020</span>&nbsp;-&nbsp;
+            
+            2021&nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;<a href="/">Healthy Mind</a>
+        </div>
+        
+        <div class="theme-info info-item">
+            由 <a target="_blank" href="https://hexo.io">Hexo</a> 驱动&nbsp;|&nbsp;主题&nbsp;<a class="theme-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep v3.4.1</a>
+        </div>
+        
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-bottom-side-tools">
+        <div class="side-tools-container">
+    <ul class="side-tools-list">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-expand-width flex-center">
+            <i class="fas fa-arrows-alt-h"></i>
+        </li>
+
+        <li class="tools-item tool-dark-light-toggle flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list">
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+        
+            <li class="tools-item tool-scroll-to-top flex-center">
+                <i class="arrow-up fas fa-arrow-up"></i>
+                <span class="percent"></span>
+            </li>
+        
+    </ul>
+</div>
+
+    </div>
+
+    
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        
+    </div>
+</div>
+        </aside>
+    
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+
+</main>
+
+
+
+<script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/header-shrink.js"></script><script src="/js/back2top.js"></script><script src="/js/dark-light-toggle.js"></script>
+
+
+
+
+    <script src="/js/code-copy.js"></script>
+
+
+
+
+<div class="post-scripts">
+    
+        <script src="/js/left-side-toggle.js"></script><script src="/js/libs/anime.min.js"></script><script src="/js/toc.js"></script>
+    
+</div>
+
+
+
+</body>
+</html>
