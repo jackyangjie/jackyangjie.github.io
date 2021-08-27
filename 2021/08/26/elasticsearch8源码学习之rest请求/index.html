@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="Healthy Mind">
+    
+    <title>
+        
+            elasticsearch8源码学习之rest请求 |
+        
+        Healthy Mind
+    </title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="shortcut icon" href="/images/logo.png">
+    <link rel="stylesheet" href="/css/font-awesome.min.css">
+    <script id="hexo-configurations">
+    let KEEP = window.KEEP || {};
+    KEEP.hexo_config = {"hostname":"example.com","root":"/","language":"zh-CN"};
+    KEEP.theme_config = {"toc":{"enable":true,"number":true,"expand_all":true,"init_open":false},"style":{"primary_color":"#0066CC","avatar":"/images/logo.png","favicon":"/images/logo.png","article_img_align":"left","left_side_width":"260px","content_max_width":"920px","hover":{"shadow":true,"scale":true},"first_screen":{"enable":true,"background_img":"/images/bg.svg","description":"Keep writing and Keep loving."},"scroll":{"progress_bar":{"enable":true},"percent":{"enable":true}}},"local_search":{"enable":false,"preload":false},"code_copy":{"enable":true,"style":"mac"},"pjax":{"enable":false},"lazyload":{"enable":false},"version":"3.4.1"};
+    KEEP.language_ago = {"second":"%s 秒前","minute":"%s 分钟前","hour":"%s 小时前","day":"%s 天前","week":"%s 周前","month":"%s 月前","year":"%s 年前"};
+  </script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+        <span class="scroll-progress-bar"></span>
+    
+
+    
+</div>
+
+
+<main class="page-container">
+
+    
+
+    <div class="page-main-content">
+
+        <div class="page-main-content-top">
+            <header class="header-wrapper">
+
+    <div class="header-content">
+        <div class="left">
+            <a class="logo-title" href="/">
+                Healthy Mind
+            </a>
+        </div>
+
+        <div class="right">
+            <div class="pc">
+                <ul class="menu-list">
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/"
+                            >
+                                首页
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >
+                                归档
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/categories"
+                            >
+                                分类
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/tags"
+                            >
+                                标签
+                            </a>
+                        </li>
+                    
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/">首页</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives">归档</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/categories">分类</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/tags">标签</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle">
+
+            <div class="main-content">
+
+                
+                    <div class="fade-in-down-animation">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            <span class="title-hover-animation">elasticsearch8源码学习之rest请求</span>
+        </div>
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="/images/logo.png">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">Healthy Mind</span>
+                        
+                            <span class="author-label">Lv3</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;2021-08-26 17:14:48
+    </span>
+    
+        <span class="article-categories article-meta-item">
+            <i class="fas fa-folder"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/categories/elasticsearch/">elasticsearch</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+    
+        <span class="article-tags article-meta-item">
+            <i class="fas fa-tags"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/tags/elasticsearch/">elasticsearch</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+
+    
+    
+    
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <p>​         es 支持NIO 和netty 两种默认的方式 ，这里看es 的nio 主要是学习es是如何使用和封装的</p>
+<p>   直接看<strong>org.elasticsearch.action.ActionModule</strong> 的构造函数 这里主要有两个 <em><strong>setupActions</strong></em> 和  new <em><strong>RestController</strong></em> 这个两个 ，这里的 Actions 目前还不知道是干啥的，猜测是TransportActtion 主要是socket 请求，<em><strong>RestController</strong></em>  这个主要是http请求</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">ActionModule</span><span class="params">(Settings settings, IndexNameExpressionResolver indexNameExpressionResolver,</span></span></span><br><span class="line"><span class="function"><span class="params">                        IndexScopedSettings indexScopedSettings, ClusterSettings clusterSettings, SettingsFilter settingsFilter,</span></span></span><br><span class="line"><span class="function"><span class="params">                        ThreadPool threadPool, List&lt;ActionPlugin&gt; actionPlugins, NodeClient nodeClient,</span></span></span><br><span class="line"><span class="function"><span class="params">                        CircuitBreakerService circuitBreakerService, UsageService usageService)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.settings = settings;</span><br><span class="line">        <span class="keyword">this</span>.indexNameExpressionResolver = indexNameExpressionResolver;</span><br><span class="line">        <span class="keyword">this</span>.indexScopedSettings = indexScopedSettings;</span><br><span class="line">        <span class="keyword">this</span>.clusterSettings = clusterSettings;</span><br><span class="line">        <span class="keyword">this</span>.settingsFilter = settingsFilter;</span><br><span class="line">        <span class="keyword">this</span>.actionPlugins = actionPlugins;</span><br><span class="line">        actions = setupActions(actionPlugins);</span><br><span class="line">       ...</span><br><span class="line"></span><br><span class="line">        restController = <span class="keyword">new</span> RestController(headers, restWrapper, nodeClient, circuitBreakerService, usageService);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里主要学习一下，es 是如何一步一步，通过 Nio 把socket 转换成HTTP在通过对应 的<strong>org.elasticsearch.rest.RestHandler</strong> （这个是请求处理的顶层接口）来处理的</p>
+<p>这里主要涉及的包有如下</p>
+<p>1.es对java Nio的封装</p>
+  <img src="/2021/08/26/elasticsearch8%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8Brest%E8%AF%B7%E6%B1%82/1.jpg" class title="GitHub Path">
+
+<ol start="2">
+<li>nio到http的转换</li>
+</ol>
+ <img src="/2021/08/26/elasticsearch8%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8Brest%E8%AF%B7%E6%B1%82/2.jpg" class title="GitHub Path">
+
+<p>3.http协议的封装</p>
+<img src="/2021/08/26/elasticsearch8%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8Brest%E8%AF%B7%E6%B1%82/3.jpg" class title="GitHub Path">
+
+<p>这里画了一个简单层级关系，一个请求过来后，通过nioSocket ，转换成http请求最后在restHandle里处理，完成后在反向写回。这是逻辑上的一个理解。</p>
+<img src="/2021/08/26/elasticsearch8%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8Brest%E8%AF%B7%E6%B1%82/5.jpg" class title="GitHub Path">
+
+<p>我们在看看代码上又是如何实现落地的,很多时候我们大脑是可以理解这种模型，但是到了实际编写代码的时候，发现却无从下手，或者是写出来的代码，层次不是那么清晰。看看下面的类图结构。</p>
+<img src="/2021/08/26/elasticsearch8%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8Brest%E8%AF%B7%E6%B1%82/4.jpg" class title="GitHub Path">
+
+<p>​    看这个类图，最好选理解一下java nio编程模型。</p>
+<ol>
+<li><p>首选是SokectChannel 这个Java Nio 封装的一个基础接口。ServerSokectChannel是处理服务端的一个Channel 继承 SokectChannel 。</p>
+</li>
+<li><p>NioChannel是es 自己抽象出来的一个 Channel，<strong>NioSokectChannel</strong> 和<strong>NioServerSokectChannel</strong> 都实现了NioChannel 并且是 SokectChannel和ServerCokectChannel 的包装</p>
+</li>
+<li><p>HttpChannel和HttpServerChannel 这两个接口是es对 http的抽象，这一层主要实现是NioHttpChannel和NioHttpServerChannel ，这两个类是通过继承 <strong>NioSokectChannel</strong> 和<strong>NioServerSokectChannel</strong> 的方式来进行包装的，</p>
+</li>
+<li><p>Http的请求是如何分发到不同的RestHandle的，这里就需要查看 RestController ，我们看看 RestController的初始化</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">ActionModule</span><span class="params">(Settings settings, IndexNameExpressionResolver indexNameExpressionResolver,</span></span></span><br><span class="line"><span class="function"><span class="params">                       IndexScopedSettings indexScopedSettings, ClusterSettings clusterSettings, SettingsFilter settingsFilter,</span></span></span><br><span class="line"><span class="function"><span class="params">                       ThreadPool threadPool, List&lt;ActionPlugin&gt; actionPlugins, NodeClient nodeClient,</span></span></span><br><span class="line"><span class="function"><span class="params">                       CircuitBreakerService circuitBreakerService, UsageService usageService)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">this</span>.settings = settings;</span><br><span class="line">       <span class="keyword">this</span>.indexNameExpressionResolver = indexNameExpressionResolver;</span><br><span class="line">       <span class="keyword">this</span>.indexScopedSettings = indexScopedSettings;</span><br><span class="line">       <span class="keyword">this</span>.clusterSettings = clusterSettings;</span><br><span class="line">       <span class="keyword">this</span>.settingsFilter = settingsFilter;</span><br><span class="line">       <span class="keyword">this</span>.actionPlugins = actionPlugins;</span><br><span class="line">       actions = setupActions(actionPlugins);</span><br><span class="line">       actionFilters = setupActionFilters(actionPlugins);</span><br><span class="line">       autoCreateIndex = <span class="keyword">new</span> AutoCreateIndex(settings, clusterSettings, indexNameExpressionResolver);</span><br><span class="line">       destructiveOperations = <span class="keyword">new</span> DestructiveOperations(settings, clusterSettings);</span><br><span class="line">       Set&lt;String&gt; headers = Stream.concat(</span><br><span class="line">           actionPlugins.stream().flatMap(p -&gt; p.getRestHeaders().stream()),</span><br><span class="line">           Stream.of(Task.X_OPAQUE_ID)</span><br><span class="line">       ).collect(Collectors.toSet());</span><br><span class="line">       UnaryOperator&lt;RestHandler&gt; restWrapper = <span class="keyword">null</span>;</span><br><span class="line">       <span class="keyword">for</span> (ActionPlugin plugin : actionPlugins) &#123;</span><br><span class="line">           UnaryOperator&lt;RestHandler&gt; newRestWrapper = plugin.getRestHandlerWrapper(threadPool.getThreadContext());</span><br><span class="line">           <span class="keyword">if</span> (newRestWrapper != <span class="keyword">null</span>) &#123;</span><br><span class="line">               logger.debug(<span class="string">&quot;Using REST wrapper from plugin &quot;</span> + plugin.getClass().getName());</span><br><span class="line">               <span class="keyword">if</span> (restWrapper != <span class="keyword">null</span>) &#123;</span><br><span class="line">                   <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">&quot;Cannot have more than one plugin implementing a REST wrapper&quot;</span>);</span><br><span class="line">               &#125;</span><br><span class="line">               restWrapper = newRestWrapper;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">    ...</span><br><span class="line">    <span class="comment">//这里的 headers和restWrapper 分别是对应  setupActions(actionPlugins) 方法初始化后的数据</span></span><br><span class="line">       restController = <span class="keyword">new</span> RestController(headers, restWrapper, nodeClient, circuitBreakerService, usageService);</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>5.在RestController 中有一个 dispatchRequest 看名字就 可以猜测这个是请求分发的，但是如何把http请路由到不同handle ？ 这里有一个技巧，选中方法用idea 中 Hierarchy  (快捷键 Ctrl+Shift+H) 如图 </p>
+</li>
+</ol>
+<p>​        <img src="/2021/08/26/elasticsearch8%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8Brest%E8%AF%B7%E6%B1%82/6.jpg" class title="GitHub Path"></p>
+<p>​       最终我们看到 一个 <strong>org.elasticsearch.http.nio.HttpReadWriteHandler</strong> <em><strong>handleRequest</strong></em> 方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SuppressWarnings(&quot;unchecked&quot;)</span></span><br><span class="line">   <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">handleRequest</span><span class="params">(Object msg)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">final</span> HttpPipelinedRequest&lt;FullHttpRequest&gt; pipelinedRequest = (HttpPipelinedRequest&lt;FullHttpRequest&gt;) msg;</span><br><span class="line">       FullHttpRequest request = pipelinedRequest.getRequest();</span><br><span class="line"></span><br><span class="line">       <span class="keyword">final</span> FullHttpRequest copiedRequest;</span><br><span class="line">       <span class="keyword">try</span> &#123;</span><br><span class="line">           copiedRequest = <span class="keyword">new</span> DefaultFullHttpRequest(</span><br><span class="line">               request.protocolVersion(),</span><br><span class="line">               request.method(),</span><br><span class="line">               request.uri(),</span><br><span class="line">               Unpooled.copiedBuffer(request.content()),</span><br><span class="line">               request.headers(),</span><br><span class="line">               request.trailingHeaders());</span><br><span class="line">       &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">           <span class="comment">// As we have copied the buffer, we can release the request</span></span><br><span class="line">           request.release();</span><br><span class="line">       &#125;</span><br><span class="line">       NioHttpRequest httpRequest = <span class="keyword">new</span> NioHttpRequest(copiedRequest, pipelinedRequest.getSequence());</span><br><span class="line"></span><br><span class="line">       <span class="keyword">if</span> (request.decoderResult().isFailure()) &#123;</span><br><span class="line">           Throwable cause = request.decoderResult().cause();</span><br><span class="line">           <span class="keyword">if</span> (cause <span class="keyword">instanceof</span> Error) &#123;</span><br><span class="line">               ExceptionsHelper.maybeDieOnAnotherThread(cause);</span><br><span class="line">               transport.incomingRequestError(httpRequest, nioHttpChannel, <span class="keyword">new</span> Exception(cause));</span><br><span class="line">           &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">               transport.incomingRequestError(httpRequest, nioHttpChannel, (Exception) cause);</span><br><span class="line">           &#125;</span><br><span class="line">       &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">           transport.incomingRequest(httpRequest, nioHttpChannel);</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>最后 <em><strong>transport.incomingRequest(httpRequest, nioHttpChannel);</strong></em> 这个代码会调用下面的代码 这样 整个流程就窜起来了</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">dispatchRequest</span><span class="params">(RestRequest request, RestChannel channel, ThreadContext threadContext)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">if</span> (request.rawPath().equals(<span class="string">&quot;/favicon.ico&quot;</span>)) &#123;</span><br><span class="line">           handleFavicon(request.method(), request.uri(), channel);</span><br><span class="line">           <span class="keyword">return</span>;</span><br><span class="line">       &#125;</span><br><span class="line">       <span class="keyword">try</span> &#123;</span><br><span class="line">           tryAllHandlers(request, channel, threadContext);</span><br><span class="line">       &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">           <span class="keyword">try</span> &#123;</span><br><span class="line">               channel.sendResponse(<span class="keyword">new</span> BytesRestResponse(channel, e));</span><br><span class="line">           &#125; <span class="keyword">catch</span> (Exception inner) &#123;</span><br><span class="line">               inner.addSuppressed(e);</span><br><span class="line">               logger.error(() -&gt;</span><br><span class="line">                   <span class="keyword">new</span> ParameterizedMessage(<span class="string">&quot;failed to send failure response for uri [&#123;&#125;]&quot;</span>, request.uri()), inner);</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>代码是窜起来， es 又是如何分配线程，暂时还不清楚</p>
+
+        </div>
+
+        
+
+        
+            <div class="article-nav">
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                           rel="next"
+                           href="/2021/08/06/Spring%E4%BA%8B%E4%BB%B6%E5%8F%91%E5%B8%83%E5%BA%94%E7%94%A8/"
+                        >
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">Spring事件发布应用</span>
+                                <span class="post-nav-item">下一篇</span>
+                            </span>
+                            <span class="right arrow-icon flex-center">
+                              <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom">
+            <footer class="footer">
+    <div class="info-container">
+        <div class="copyright-info info-item">
+            &copy;
+            
+              <span>2020</span>&nbsp;-&nbsp;
+            
+            2021&nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;<a href="/">Healthy Mind</a>
+        </div>
+        
+        <div class="theme-info info-item">
+            由 <a target="_blank" href="https://hexo.io">Hexo</a> 驱动&nbsp;|&nbsp;主题&nbsp;<a class="theme-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep v3.4.1</a>
+        </div>
+        
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-bottom-side-tools">
+        <div class="side-tools-container">
+    <ul class="side-tools-list">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-expand-width flex-center">
+            <i class="fas fa-arrows-alt-h"></i>
+        </li>
+
+        <li class="tools-item tool-dark-light-toggle flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list">
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+        
+            <li class="tools-item tool-scroll-to-top flex-center">
+                <i class="arrow-up fas fa-arrow-up"></i>
+                <span class="percent"></span>
+            </li>
+        
+    </ul>
+</div>
+
+    </div>
+
+    
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        
+    </div>
+</div>
+        </aside>
+    
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+
+</main>
+
+
+
+<script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/header-shrink.js"></script><script src="/js/back2top.js"></script><script src="/js/dark-light-toggle.js"></script>
+
+
+
+
+    <script src="/js/code-copy.js"></script>
+
+
+
+
+<div class="post-scripts">
+    
+        <script src="/js/left-side-toggle.js"></script><script src="/js/libs/anime.min.js"></script><script src="/js/toc.js"></script>
+    
+</div>
+
+
+
+</body>
+</html>
