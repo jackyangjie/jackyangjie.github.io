@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="Healthy Mind">
+    
+    <title>
+        
+            elasticsearch8检索流程 |
+        
+        Healthy Mind
+    </title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="shortcut icon" href="/images/logo.png">
+    <link rel="stylesheet" href="/css/font-awesome.min.css">
+    <script id="hexo-configurations">
+    let KEEP = window.KEEP || {};
+    KEEP.hexo_config = {"hostname":"example.com","root":"/","language":"zh-CN"};
+    KEEP.theme_config = {"toc":{"enable":true,"number":true,"expand_all":true,"init_open":false},"style":{"primary_color":"#0066CC","avatar":"/images/logo.png","favicon":"/images/logo.png","article_img_align":"left","left_side_width":"260px","content_max_width":"920px","hover":{"shadow":true,"scale":true},"first_screen":{"enable":true,"background_img":"/images/bg.svg","description":"Keep writing and Keep loving."},"scroll":{"progress_bar":{"enable":true},"percent":{"enable":true}}},"local_search":{"enable":false,"preload":false},"code_copy":{"enable":true,"style":"mac"},"pjax":{"enable":false},"lazyload":{"enable":false},"version":"3.4.1"};
+    KEEP.language_ago = {"second":"%s 秒前","minute":"%s 分钟前","hour":"%s 小时前","day":"%s 天前","week":"%s 周前","month":"%s 月前","year":"%s 年前"};
+  </script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+        <span class="scroll-progress-bar"></span>
+    
+
+    
+</div>
+
+
+<main class="page-container">
+
+    
+
+    <div class="page-main-content">
+
+        <div class="page-main-content-top">
+            <header class="header-wrapper">
+
+    <div class="header-content">
+        <div class="left">
+            <a class="logo-title" href="/">
+                Healthy Mind
+            </a>
+        </div>
+
+        <div class="right">
+            <div class="pc">
+                <ul class="menu-list">
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/"
+                            >
+                                首页
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >
+                                归档
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/categories"
+                            >
+                                分类
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/tags"
+                            >
+                                标签
+                            </a>
+                        </li>
+                    
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/">首页</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives">归档</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/categories">分类</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/tags">标签</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle">
+
+            <div class="main-content">
+
+                
+                    <div class="fade-in-down-animation">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            <span class="title-hover-animation">elasticsearch8检索流程</span>
+        </div>
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="/images/logo.png">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">Healthy Mind</span>
+                        
+                            <span class="author-label">Lv3</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;2021-09-09 20:29:22
+    </span>
+    
+        <span class="article-categories article-meta-item">
+            <i class="fas fa-folder"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/categories/elasticsearch/">elasticsearch</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+    
+        <span class="article-tags article-meta-item">
+            <i class="fas fa-tags"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/tags/elasticsearch/">elasticsearch</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+
+    
+    
+    
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <p>​       在es 中涉及到操作最多就是检索，接下来看看检索的源码是怎么个流程，在es Rest请求中我们看到了 **org.elasticsearch.rest.RestController#dispatchRequest(org.elasticsearch.rest.RestRequest, org.elasticsearch.rest.RestChannel, org.elasticsearch.rest.RestHandler) **这个方法 ，这是 es http 请求的总的一个控制器，</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">dispatchRequest</span><span class="params">(RestRequest request, RestChannel channel, RestHandler handler)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">      ...</span><br><span class="line">       RestChannel responseChannel = channel;</span><br><span class="line">       <span class="keyword">try</span> &#123;</span><br><span class="line">           <span class="keyword">if</span> (handler.canTripCircuitBreaker()) &#123;</span><br><span class="line">               inFlightRequestsBreaker(circuitBreakerService).addEstimateBytesAndMaybeBreak(contentLength, <span class="string">&quot;&lt;http_request&gt;&quot;</span>);</span><br><span class="line">           &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">               inFlightRequestsBreaker(circuitBreakerService).addWithoutBreaking(contentLength);</span><br><span class="line">           &#125;</span><br><span class="line">           <span class="comment">// iff we could reserve bytes for the request we need to send the response also over this channel</span></span><br><span class="line">           responseChannel = <span class="keyword">new</span> ResourceHandlingHttpChannel(channel, circuitBreakerService, contentLength);</span><br><span class="line">           <span class="comment">//请求处理主要方法</span></span><br><span class="line">           handler.handleRequest(request, responseChannel, client);</span><br><span class="line">       &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">           responseChannel.sendResponse(<span class="keyword">new</span> BytesRestResponse(responseChannel, e));</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>ctrl+alt+B 查看 <strong>handleRequest</strong> 实现类有哪些，这里有很多实现，但是大部分都是 test 可以看出都是测试用例，所以不是我们需要的，我们 需要看看其他的，可以猜 base 开头的 一般都是 基础实现 <strong>org.elasticsearch.rest.BaseRestHandler#handleRequest</strong> 当然有时候一次不一定正确。</p>
+<img src="/2021/09/09/elasticsearch8%E6%A3%80%E7%B4%A2%E6%B5%81%E7%A8%8B/1.jpg" class title="GitHub Path">
+
+<p>这个方法代码都有注释，<strong>prepareRequest(request, client)</strong> 主要方法就是这个了，看看下面都有哪些实现。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">handleRequest</span><span class="params">(RestRequest request, RestChannel channel, NodeClient client)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">       <span class="comment">// prepare the request for execution; has the side effect of touching the request parameters</span></span><br><span class="line">       <span class="keyword">final</span> RestChannelConsumer action = prepareRequest(request, client);</span><br><span class="line"></span><br><span class="line">       <span class="comment">// validate unconsumed params, but we must exclude params used to format the response</span></span><br><span class="line">       <span class="comment">// use a sorted set so the unconsumed parameters appear in a reliable sorted order</span></span><br><span class="line">       <span class="keyword">final</span> SortedSet&lt;String&gt; unconsumedParams =</span><br><span class="line">           request.unconsumedParams().stream().filter(p -&gt; !responseParams().contains(p)).collect(Collectors.toCollection(TreeSet::<span class="keyword">new</span>));</span><br><span class="line"></span><br><span class="line">       <span class="comment">// validate the non-response params</span></span><br><span class="line">       <span class="keyword">if</span> (!unconsumedParams.isEmpty()) &#123;</span><br><span class="line">           <span class="keyword">final</span> Set&lt;String&gt; candidateParams = <span class="keyword">new</span> HashSet&lt;&gt;();</span><br><span class="line">           candidateParams.addAll(request.consumedParams());</span><br><span class="line">           candidateParams.addAll(responseParams());</span><br><span class="line">           <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(unrecognized(request, unconsumedParams, candidateParams, <span class="string">&quot;parameter&quot;</span>));</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       <span class="keyword">if</span> (request.hasContent() &amp;&amp; request.isContentConsumed() == <span class="keyword">false</span>) &#123;</span><br><span class="line">           <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">&quot;request [&quot;</span> + request.method() + <span class="string">&quot; &quot;</span> + request.path() + <span class="string">&quot;] does not support having a body&quot;</span>);</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       usageCount.increment();</span><br><span class="line">       <span class="comment">// execute the action</span></span><br><span class="line">       action.accept(channel);</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<img src="/2021/09/09/elasticsearch8%E6%A3%80%E7%B4%A2%E6%B5%81%E7%A8%8B/2.jpg" class title="GitHub Path">
+
+<p> 这下面有239个实现，懵逼了有没有，这里我们需要查看<strong>RestSearchAction</strong> 类，这些类的命名让我们很容就和es的操作进行关联的。</p>
+<img src="/2021/09/09/elasticsearch8%E6%A3%80%E7%B4%A2%E6%B5%81%E7%A8%8B/3.jpg" class title="GitHub Path">
+
+<p>查看如下方法<strong>org.elasticsearch.rest.action.search.RestSearchAction#prepareRequest</strong></p>
+<p>这里是返回的是一个 RestChannelConsumer  其实和 <strong>java.util.function.Consumer</strong> 一样的功能</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line">   <span class="function"><span class="keyword">public</span> RestChannelConsumer <span class="title">prepareRequest</span><span class="params">(<span class="keyword">final</span> RestRequest request, <span class="keyword">final</span> NodeClient client)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">       SearchRequest searchRequest = <span class="keyword">new</span> SearchRequest();</span><br><span class="line">       <span class="comment">/*</span></span><br><span class="line"><span class="comment">        * We have to pull out the call to `source().size(size)` because</span></span><br><span class="line"><span class="comment">        * _update_by_query and _delete_by_query uses this same parsing</span></span><br><span class="line"><span class="comment">        * path but sets a different variable when it sees the `size`</span></span><br><span class="line"><span class="comment">        * url parameter.</span></span><br><span class="line"><span class="comment">        *</span></span><br><span class="line"><span class="comment">        * Note that we can&#x27;t use `searchRequest.source()::size` because</span></span><br><span class="line"><span class="comment">        * `searchRequest.source()` is null right now. We don&#x27;t have to</span></span><br><span class="line"><span class="comment">        * guard against it being null in the IntConsumer because it can&#x27;t</span></span><br><span class="line"><span class="comment">        * be null later. If that is confusing to you then you are in good</span></span><br><span class="line"><span class="comment">        * company.</span></span><br><span class="line"><span class="comment">        */</span></span><br><span class="line">       IntConsumer setSize = size -&gt; searchRequest.source().size(size);</span><br><span class="line">       request.withContentOrSourceParamParserOrNull(parser -&gt;</span><br><span class="line">           parseSearchRequest(searchRequest, request, parser, setSize));</span><br><span class="line"></span><br><span class="line">       <span class="keyword">return</span> channel -&gt; &#123;</span><br><span class="line">           <span class="comment">// RestStatusToXContentListener 是一个包装类，添加 监听</span></span><br><span class="line">           <span class="comment">//es 中有很多这样的包装 类 例如 org.elasticsearch.action.ActionListener 类</span></span><br><span class="line">           RestStatusToXContentListener&lt;SearchResponse&gt; listener = <span class="keyword">new</span> RestStatusToXContentListener&lt;&gt;(channel);</span><br><span class="line">           HttpChannelTaskHandler.INSTANCE.execute(client, request.getHttpChannel(), searchRequest, SearchAction.INSTANCE, listener);</span><br><span class="line">       &#125;;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>类似 <strong>org.elasticsearch.action.ActionListener</strong> 类的使用方式 可以把监听和 源分离，看看例子</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> &lt;Response&gt; <span class="function">ActionListener&lt;Response&gt; <span class="title">wrap</span><span class="params">(CheckedConsumer&lt;Response, ? extends Exception&gt; onResponse,</span></span></span><br><span class="line"><span class="function"><span class="params">           Consumer&lt;Exception&gt; onFailure)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">return</span> <span class="keyword">new</span> ActionListener&lt;Response&gt;() &#123;</span><br><span class="line">           <span class="meta">@Override</span></span><br><span class="line">           <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onResponse</span><span class="params">(Response response)</span> </span>&#123;</span><br><span class="line">               <span class="keyword">try</span> &#123;</span><br><span class="line">                   onResponse.accept(response);</span><br><span class="line">               &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                   onFailure(e);</span><br><span class="line">               &#125;</span><br><span class="line">           &#125;</span><br><span class="line"></span><br><span class="line">           <span class="meta">@Override</span></span><br><span class="line">           <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onFailure</span><span class="params">(Exception e)</span> </span>&#123;</span><br><span class="line">               onFailure.accept(e);</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>下面我主要看看  <strong>HttpChannelTaskHandler.INSTANCE.execute</strong> 这行代码，这个执行任务的代码 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">&lt;Response extends ActionResponse&gt; <span class="function"><span class="keyword">void</span> <span class="title">execute</span><span class="params">(NodeClient client, HttpChannel httpChannel, ActionRequest request,</span></span></span><br><span class="line"><span class="function"><span class="params">                                                   ActionType&lt;Response&gt; actionType, ActionListener&lt;Response&gt; listener)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        CloseListener closeListener = httpChannels.computeIfAbsent(httpChannel, channel -&gt; <span class="keyword">new</span> CloseListener(client));</span><br><span class="line">      <span class="comment">//任务Holder</span></span><br><span class="line">        TaskHolder taskHolder = <span class="keyword">new</span> TaskHolder();</span><br><span class="line">    <span class="comment">//执行任务 </span></span><br><span class="line">        Task task = client.executeLocally(actionType, request,</span><br><span class="line">            <span class="keyword">new</span> ActionListener&lt;&gt;() &#123;</span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onResponse</span><span class="params">(Response searchResponse)</span> </span>&#123;</span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        closeListener.unregisterTask(taskHolder);</span><br><span class="line">                    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                        listener.onResponse(searchResponse);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line"></span><br><span class="line">                <span class="meta">@Override</span></span><br><span class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onFailure</span><span class="params">(Exception e)</span> </span>&#123;</span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        closeListener.unregisterTask(taskHolder);</span><br><span class="line">                    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                        listener.onFailure(e);</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;);</span><br><span class="line">    <span class="comment">// 注册任务 的关闭监听 </span></span><br><span class="line">        closeListener.registerTask(taskHolder, <span class="keyword">new</span> TaskId(client.getLocalNodeId(), task.getId()));</span><br><span class="line">        closeListener.maybeRegisterChannel(httpChannel);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>查看这个executeLocally 的实现，NodeClient</p>
+<img src="/2021/09/09/elasticsearch8%E6%A3%80%E7%B4%A2%E6%B5%81%E7%A8%8B/4.jpg" class title="GitHub Path">
+
+<p>查看 <strong>NodeClient  <em>executeLocally</em></strong> 方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> &lt;    Request extends ActionRequest,</span><br><span class="line">               Response extends ActionResponse</span><br><span class="line">           &gt; <span class="function">Task <span class="title">executeLocally</span><span class="params">(ActionType&lt;Response&gt; action, Request request, ActionListener&lt;Response&gt; listener)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">return</span> taskManager.registerAndExecute(<span class="string">&quot;transport&quot;</span>, transportAction(action), request,</span><br><span class="line">           (t, r) -&gt; listener.onResponse(r), (t, e) -&gt; listener.onFailure(e));</span><br><span class="line">   &#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>在 NodeClient   内部有一个 taskManager 任务管理器，注册并执行任务。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> &lt;Request extends ActionRequest, Response extends ActionResponse&gt;</span><br><span class="line">   <span class="function">Task <span class="title">registerAndExecute</span><span class="params">(String type, TransportAction&lt;Request, Response&gt; action, Request request,</span></span></span><br><span class="line"><span class="function"><span class="params">                           BiConsumer&lt;Task, Response&gt; onResponse, BiConsumer&lt;Task, Exception&gt; onFailure)</span> </span>&#123;</span><br><span class="line">      <span class="comment">//注册任务 //这里的 action.actionName</span></span><br><span class="line">       Task task = register(type, action.actionName, request);</span><br><span class="line">       <span class="comment">// <span class="doctag">NOTE:</span> ActionListener cannot infer Response, see https://bugs.openjdk.java.net/browse/JDK-8203195</span></span><br><span class="line">    <span class="comment">//执行任务</span></span><br><span class="line">       action.execute(task, request, <span class="keyword">new</span> ActionListener&lt;Response&gt;() &#123;</span><br><span class="line">           <span class="meta">@Override</span></span><br><span class="line">           <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onResponse</span><span class="params">(Response response)</span> </span>&#123;</span><br><span class="line">               <span class="keyword">try</span> &#123;</span><br><span class="line">                   <span class="comment">//取消注册 </span></span><br><span class="line">                   unregister(task);</span><br><span class="line">               &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                   onResponse.accept(task, response);</span><br><span class="line">               &#125;</span><br><span class="line">           &#125;</span><br><span class="line"></span><br><span class="line">           <span class="meta">@Override</span></span><br><span class="line">           <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onFailure</span><span class="params">(Exception e)</span> </span>&#123;</span><br><span class="line">               <span class="keyword">try</span> &#123;</span><br><span class="line">                   unregister(task);</span><br><span class="line">               &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">                   onFailure.accept(task, e);</span><br><span class="line">               &#125;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;);</span><br><span class="line">       <span class="keyword">return</span> task;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>在往下面看</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">execute</span><span class="params">(Task task, Request request, ActionListener&lt;Response&gt; listener)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//各种校验</span></span><br><span class="line">       ActionRequestValidationException validationException = request.validate();</span><br><span class="line">       <span class="keyword">if</span> (validationException != <span class="keyword">null</span>) &#123;</span><br><span class="line">           listener.onFailure(validationException);</span><br><span class="line">           <span class="keyword">return</span>;</span><br><span class="line">       &#125;</span><br><span class="line"></span><br><span class="line">       <span class="keyword">if</span> (task != <span class="keyword">null</span> &amp;&amp; request.getShouldStoreResult()) &#123;</span><br><span class="line">           listener = <span class="keyword">new</span> TaskResultStoringActionListener&lt;&gt;(taskManager, task, listener);</span><br><span class="line">       &#125;</span><br><span class="line">   <span class="comment">//创建 请求Filter连 类似 servlet Filter,这里是用数组实现的，就不在细看了</span></span><br><span class="line">       RequestFilterChain&lt;Request, Response&gt; requestFilterChain = <span class="keyword">new</span> RequestFilterChain&lt;&gt;(<span class="keyword">this</span>, logger);</span><br><span class="line">     </span><br><span class="line">       requestFilterChain.proceed(task, actionName, request, listener);</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>在看 proceed方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line">       <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">proceed</span><span class="params">(Task task, String actionName, Request request, ActionListener&lt;Response&gt; listener)</span> </span>&#123;</span><br><span class="line">           <span class="keyword">int</span> i = index.getAndIncrement();</span><br><span class="line">           <span class="keyword">try</span> &#123;</span><br><span class="line">               <span class="keyword">if</span> (i &lt; <span class="keyword">this</span>.action.filters.length) &#123;</span><br><span class="line">                   <span class="keyword">this</span>.action.filters[i].apply(task, actionName, request, listener, <span class="keyword">this</span>);</span><br><span class="line">                   <span class="comment">//走完前面的filter 后最后执行 doExecute方法</span></span><br><span class="line">               &#125; <span class="keyword">else</span> <span class="keyword">if</span> (i == <span class="keyword">this</span>.action.filters.length) &#123;</span><br><span class="line">                   <span class="keyword">this</span>.action.doExecute(task, request, listener);</span><br><span class="line">               &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                   listener.onFailure(<span class="keyword">new</span> IllegalStateException(<span class="string">&quot;proceed was called too many times&quot;</span>));</span><br><span class="line">               &#125;</span><br><span class="line">           &#125; <span class="keyword">catch</span>(Exception e) &#123;</span><br><span class="line">               logger.trace(<span class="string">&quot;Error during transport action execution.&quot;</span>, e);</span><br><span class="line">               listener.onFailure(e);</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们就直接看 <em><strong>org.elasticsearch.action.search.TransportSearchAction#doExecute</strong></em> 这里是模板方法，</p>
+<img src="/2021/09/09/elasticsearch8%E6%A3%80%E7%B4%A2%E6%B5%81%E7%A8%8B/5.jpg" class title="GitHub Path">
+
+<p>代码如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">doExecute</span><span class="params">(Task task, SearchRequest searchRequest, ActionListener&lt;SearchResponse&gt; listener)</span> </span>&#123;</span><br><span class="line">   ...</span><br><span class="line">      ActionListener&lt;SearchSourceBuilder&gt; rewriteListener = ActionListener.wrap(source -&gt; &#123;</span><br><span class="line">          <span class="keyword">if</span> (source != searchRequest.source()) &#123;</span><br><span class="line">              <span class="comment">// only set it if it changed - we don&#x27;t allow null values to be set but it might be already null. this way we catch</span></span><br><span class="line">              <span class="comment">// situations when source is rewritten to null due to a bug</span></span><br><span class="line">              searchRequest.source(source);</span><br><span class="line">          &#125;</span><br><span class="line">          <span class="keyword">final</span> ClusterState clusterState = clusterService.state();</span><br><span class="line">          <span class="keyword">final</span> Map&lt;String, OriginalIndices&gt; remoteClusterIndices = remoteClusterService.groupIndices(searchRequest.indicesOptions(),</span><br><span class="line">              searchRequest.indices());</span><br><span class="line">          OriginalIndices localIndices = remoteClusterIndices.remove(RemoteClusterAware.LOCAL_CLUSTER_GROUP_KEY);</span><br><span class="line">          <span class="comment">//判断所以是否在远程， 可以猜测，上面两行代码就是判断 索引是否在 当前节点，</span></span><br><span class="line">          <span class="comment">//如是 就执行 executeLocalSearch</span></span><br><span class="line">          <span class="keyword">if</span> (remoteClusterIndices.isEmpty()) &#123;</span><br><span class="line">              executeLocalSearch(task, timeProvider, searchRequest, localIndices, clusterState, listener);</span><br><span class="line">          &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">              <span class="keyword">if</span> (shouldMinimizeRoundtrips(searchRequest)) &#123;</span><br><span class="line">                  ccsRemoteReduce(searchRequest, localIndices, remoteClusterIndices, timeProvider, searchService::createReduceContext,</span><br><span class="line">                      remoteClusterService, threadPool, listener,</span><br><span class="line">                      (r, l) -&gt; executeLocalSearch(task, timeProvider, r, localIndices, clusterState, l));</span><br><span class="line">              &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                  AtomicInteger skippedClusters = <span class="keyword">new</span> AtomicInteger(<span class="number">0</span>);</span><br><span class="line">                  <span class="comment">//远程收集检索的分片，</span></span><br><span class="line">                  collectSearchShards(searchRequest.indicesOptions(), searchRequest.preference(), searchRequest.routing(),</span><br><span class="line">                      skippedClusters, remoteClusterIndices, remoteClusterService, threadPool,</span><br><span class="line">                   <span class="comment">//添加监听，当获取分片信息完成后执行监听的内容，进行查询。                  </span></span><br><span class="line">                      ActionListener.wrap(</span><br><span class="line">                          searchShardsResponses -&gt; &#123;</span><br><span class="line">                              List&lt;SearchShardIterator&gt; remoteShardIterators = <span class="keyword">new</span> ArrayList&lt;&gt;();</span><br><span class="line">                              Map&lt;String, AliasFilter&gt; remoteAliasFilters = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line">                              BiFunction&lt;String, String, DiscoveryNode&gt; clusterNodeLookup = processRemoteShards(</span><br><span class="line">                                  searchShardsResponses, remoteClusterIndices, remoteShardIterators, remoteAliasFilters);</span><br><span class="line">                              <span class="keyword">int</span> localClusters = localIndices == <span class="keyword">null</span> ? <span class="number">0</span> : <span class="number">1</span>;</span><br><span class="line">                              <span class="keyword">int</span> totalClusters = remoteClusterIndices.size() + localClusters;</span><br><span class="line">                              <span class="keyword">int</span> successfulClusters = searchShardsResponses.size() + localClusters;</span><br><span class="line">                <span class="comment">//执行查询  executeLocalSearch 最终也是执行的 这个方法             </span></span><br><span class="line">                              executeSearch((SearchTask) task, timeProvider, searchRequest, localIndices,</span><br><span class="line">                                  remoteShardIterators, clusterNodeLookup, clusterState, remoteAliasFilters, listener,</span><br><span class="line">                                  <span class="keyword">new</span> SearchResponse.Clusters(totalClusters, successfulClusters, skippedClusters.get()));</span><br><span class="line">                          &#125;,</span><br><span class="line">                          listener::onFailure));</span><br><span class="line">              &#125;</span><br><span class="line">          &#125;</span><br><span class="line">      &#125;, listener::onFailure);</span><br><span class="line">      <span class="keyword">if</span> (searchRequest.source() == <span class="keyword">null</span>) &#123;</span><br><span class="line">          rewriteListener.onResponse(searchRequest.source());</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">          Rewriteable.rewriteAndFetch(searchRequest.source(), searchService.getRewriteContext(timeProvider::getAbsoluteStartMillis),</span><br><span class="line">              rewriteListener);</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>在这里 <strong>ActionListener</strong> 这个接口 在 es里用的比较普遍，很多程序都是通过包装原有监听来进行添加额外操作的，可以学习一下，平时我们对一个 函数添加runBefore 操作的时候大都是写在 已经搭好的 算法中，这里<strong>ActionListener</strong> 是使用的装饰模式来进行增强的，源码如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> &lt;Response&gt; <span class="function">ActionListener&lt;Response&gt; <span class="title">runBefore</span><span class="params">(ActionListener&lt;Response&gt; delegate, CheckedRunnable&lt;?&gt; runBefore)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">return</span> <span class="keyword">new</span> ActionListener&lt;&gt;() &#123;</span><br><span class="line">           <span class="meta">@Override</span></span><br><span class="line">           <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onResponse</span><span class="params">(Response response)</span> </span>&#123;</span><br><span class="line">               <span class="keyword">try</span> &#123;</span><br><span class="line">                   runBefore.run();</span><br><span class="line">               &#125; <span class="keyword">catch</span> (Exception ex) &#123;</span><br><span class="line">                   delegate.onFailure(ex);</span><br><span class="line">                   <span class="keyword">return</span>;</span><br><span class="line">               &#125;</span><br><span class="line">               delegate.onResponse(response);</span><br><span class="line">           &#125;</span><br><span class="line"></span><br><span class="line">           <span class="meta">@Override</span></span><br><span class="line">           <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onFailure</span><span class="params">(Exception e)</span> </span>&#123;</span><br><span class="line">               <span class="keyword">try</span> &#123;</span><br><span class="line">                   runBefore.run();</span><br><span class="line">               &#125; <span class="keyword">catch</span> (Exception ex) &#123;</span><br><span class="line">                   e.addSuppressed(ex);</span><br><span class="line">               &#125;</span><br><span class="line">               delegate.onFailure(e);</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>接下来的流程代码比较简单就用时序图表示</p>
+<img src="/2021/09/09/elasticsearch8%E6%A3%80%E7%B4%A2%E6%B5%81%E7%A8%8B/6.jpg" class title="GitHub Path">
+
+<p>最终都是通过这里把数据返回给客户端，或者是发送请求到其他节点查询数据。底层有Nio实现和netty 不同的实现方式。</p>
+
+        </div>
+
+        
+
+        
+            <div class="article-nav">
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                           rel="next"
+                           href="/2021/08/26/elasticsearch8%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8Brest%E8%AF%B7%E6%B1%82/"
+                        >
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">elasticsearch8源码学习之rest请求</span>
+                                <span class="post-nav-item">下一篇</span>
+                            </span>
+                            <span class="right arrow-icon flex-center">
+                              <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom">
+            <footer class="footer">
+    <div class="info-container">
+        <div class="copyright-info info-item">
+            &copy;
+            
+              <span>2020</span>&nbsp;-&nbsp;
+            
+            2021&nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;<a href="/">Healthy Mind</a>
+        </div>
+        
+        <div class="theme-info info-item">
+            由 <a target="_blank" href="https://hexo.io">Hexo</a> 驱动&nbsp;|&nbsp;主题&nbsp;<a class="theme-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep v3.4.1</a>
+        </div>
+        
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-bottom-side-tools">
+        <div class="side-tools-container">
+    <ul class="side-tools-list">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-expand-width flex-center">
+            <i class="fas fa-arrows-alt-h"></i>
+        </li>
+
+        <li class="tools-item tool-dark-light-toggle flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list">
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+        
+            <li class="tools-item tool-scroll-to-top flex-center">
+                <i class="arrow-up fas fa-arrow-up"></i>
+                <span class="percent"></span>
+            </li>
+        
+    </ul>
+</div>
+
+    </div>
+
+    
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        
+    </div>
+</div>
+        </aside>
+    
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+
+</main>
+
+
+
+<script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/header-shrink.js"></script><script src="/js/back2top.js"></script><script src="/js/dark-light-toggle.js"></script>
+
+
+
+
+    <script src="/js/code-copy.js"></script>
+
+
+
+
+<div class="post-scripts">
+    
+        <script src="/js/left-side-toggle.js"></script><script src="/js/libs/anime.min.js"></script><script src="/js/toc.js"></script>
+    
+</div>
+
+
+
+</body>
+</html>
