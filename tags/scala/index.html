@@ -9,7 +9,7 @@
     
     <title>
         
-            对写代码的理解 |
+            标签: scala |
         
         Healthy Mind
     </title>
@@ -80,7 +80,7 @@
                         </li>
                     
                         <li class="menu-item">
-                            <a class=""
+                            <a class="active"
                                href="/tags"
                             >
                                 标签
@@ -118,7 +118,7 @@
                 </li>
             
                 <li class="drawer-menu-item flex-center">
-                    <a class=""
+                    <a class="active"
                        href="/tags">标签</a>
                 </li>
             
@@ -138,111 +138,42 @@
 
                 
                     <div class="fade-in-down-animation">
-    <div class="article-content-container">
-
-        <div class="article-title">
-            <span class="title-hover-animation">对写代码的理解</span>
+    <div class="tag-container">
+        <div class="tag-name"><i class="fas fa-tag"></i>&nbsp;scala
         </div>
-
-        
-            <div class="article-header">
-                <div class="avatar">
-                    <img src="/images/logo.png">
-                </div>
-                <div class="info">
-                    <div class="author">
-                        <span class="name">Healthy Mind</span>
-                        
-                            <span class="author-label">Lv3</span>
-                        
-                    </div>
-                    <div class="meta-info">
-                        <div class="article-meta-info">
-    <span class="article-date article-meta-item">
-        <i class="fas fa-edit"></i>&nbsp;2021-09-20 16:45:40
-    </span>
+        <div class="tag-post-list">
+            
+<div class="archive-list-container">
     
-    
-        <span class="article-tags article-meta-item">
-            <i class="fas fa-tags"></i>&nbsp;
-            <ul>
+        <section class="archive-item">
+            <div class="archive-item-header">
+                <span class="archive-year">2023</span>
+                <span class="archive-year-post-count">[1]</span>
+            </div>
+            <ul class="article-list">
                 
-                    <li>
-                        <a href="/tags/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%BC%96%E7%A8%8B-%E6%A8%A1%E5%9D%97/">面向对象编程-模块</a>&nbsp;
+                    <li class="article-item">
+                        <a class="article-title"
+                           href="/2023/03/16/%E5%88%9B%E5%BB%BAjava%E5%92%8Cscala%E6%B7%B7%E5%90%88%E9%A1%B9%E7%9B%AE/"
+                        >创建java和scala混合项目</a>
+                        <span class="article-date">03-16</span>
                     </li>
                 
             </ul>
-        </span>
-    
-
-    
-    
-    
+        </section>
     
 </div>
 
-                    </div>
-                </div>
-            </div>
-        
-
-        <div class="article-content markdown-body">
-            <p>​         总结一下自己对面向对象编程的理解；记录一下也算是自己的感悟吧！</p>
-<p>​    在面向对象编程里，第一节课就是，世界万物皆是对象， 那个时候，以为理解了，可是随着编程时间 越来越长，对对象的理解也越来越深，这句话虽然一开始就懂，但是在懂的基础之上，我忽略了何为深度，也许那个时候的认知是很肤浅的，随着实践的时间越长就对一个概念的理解也会有不同<strong>程度</strong>的感悟，认识一个概念就相当打开了一扇门，但是这门后面有多深，多远就需要自己不断探索了。</p>
-<p>​     当看到 一些开源框架，和中间件的时候，什么是真正的面向对象，什么又是，继承、封装、多态； 在tomcat、elasticSearch、spring 等，这些源码里面把这些概念如何应用到，炉火纯青的地步。</p>
-<p>​     在自己的脑海里也有了一个对面向对象编程有了一个宏观上的理解。程序里的一个<strong>模块</strong> 可以理解成公司的一个<strong>部门</strong> ：<strong>行政部</strong>，<strong>财务部</strong></p>
-<p><strong>研发部</strong>，<strong>市场部</strong>   ，这些部门都负责不同的工作，我们写代码就是构建不同的部门，在现实生活中，部门的职责是分的很清楚的，</p>
-<p>​    行政部：公司制度的制定，公司的管理规范等。</p>
-<p>   财务部：管理收入支出等。</p>
-<p>  研发部：相当于产品的生产部门</p>
-<p>  市场部：销售产品</p>
-<p> 对象，可以理解为部门里的人，数据：可以理解成 现实中的事件，任务。</p>
-<p>每个部门的职责范围清楚，才能有序配合工作，写代码也是，如果代码模块的职责不清楚，就会导致代码调用混乱，线路交叉纵横，难以维护，而且bug比较多，</p>
-<p> 当在写代码的时候，想着是如何组件这个公司，那些人 该分配到行政部，那些人该分配到 研发部 等，当我们对业务 进行合理划分后，一个清晰的 系统之间的模块关系就出来了，如果模块不清晰，那么对象的职责肯定也是混乱的，就像公司的一个打杂部门一样。</p>
-<p>  要想模块清晰，就需要对业务有深刻的理解，把业务对象，和流程分解到合适的位置，关于这一块 ，我目前还在实践中，这也许就需要我们有比较高的抽象能力把，一开始可以写一些伪代码，或这画图；代码的抽象和职责分离 是一个持续的过程，当我们看到 tomcat 8 和tomcat 6的时候就会发现，其实tomcat的抽象能那么强，也不是一蹴而就的，是在不断的重构中完善的，所以模块的划分，类职责的划分，和类与类的关系，都是一点一点 随着业务，或者我们对业务的理解深度，以及对代码的理解程度 一点点 改变。</p>
-
         </div>
+    </div>
 
-        
+    <div class="tag-paginator">
+        <div class="paginator">
+    
 
-        
-            <div class="article-nav">
-                
-                    <div class="article-prev">
-                        <a class="prev"
-                           rel="prev"
-                           href="/2023/03/16/%E5%88%9B%E5%BB%BAjava%E5%92%8Cscala%E6%B7%B7%E5%90%88%E9%A1%B9%E7%9B%AE/"
-                        >
-                            <span class="left arrow-icon flex-center">
-                              <i class="fas fa-chevron-left"></i>
-                            </span>
-                            <span class="title flex-center">
-                                <span class="post-nav-title-item">创建java和scala混合项目</span>
-                                <span class="post-nav-item">上一篇</span>
-                            </span>
-                        </a>
-                    </div>
-                
-                
-                    <div class="article-next">
-                        <a class="next"
-                           rel="next"
-                           href="/2021/09/09/elasticsearch8%E6%A3%80%E7%B4%A2%E6%B5%81%E7%A8%8B/"
-                        >
-                            <span class="title flex-center">
-                                <span class="post-nav-title-item">elasticsearch8检索流程</span>
-                                <span class="post-nav-item">下一篇</span>
-                            </span>
-                            <span class="right arrow-icon flex-center">
-                              <i class="fas fa-chevron-right"></i>
-                            </span>
-                        </a>
-                    </div>
-                
-            </div>
-        
+    
+</div>
 
-        
     </div>
 </div>
 
@@ -273,23 +204,6 @@
         </div>
     </div>
 
-    
-        <div class="post-tools">
-            <div class="post-tools-container">
-    <ul class="tools-list">
-        <!-- TOC aside toggle -->
-        
-            <li class="tools-item page-aside-toggle">
-                <i class="fas fa-outdent"></i>
-            </li>
-        
-
-        <!-- go comment -->
-        
-    </ul>
-</div>
-
-        </div>
     
 
     <div class="right-bottom-side-tools">
@@ -337,14 +251,6 @@
     </div>
 
     
-        <aside class="page-aside">
-            <div class="post-toc-wrap">
-    <div class="post-toc">
-        
-    </div>
-</div>
-        </aside>
-    
 
     <div class="image-viewer-container">
     <img src="">
@@ -368,8 +274,6 @@
 
 
 <div class="post-scripts">
-    
-        <script src="/js/left-side-toggle.js"></script><script src="/js/libs/anime.min.js"></script><script src="/js/toc.js"></script>
     
 </div>
 
