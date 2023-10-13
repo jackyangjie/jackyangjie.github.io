@@ -14,11 +14,11 @@
         Healthy Mind
     </title>
     <link rel="stylesheet" href="/css/style.css">
-    <link rel="shortcut icon" href="/project/blog/images/logo.png">
+    <link rel="shortcut icon" href="/images/logo.png">
     <link rel="stylesheet" href="/css/font-awesome.min.css">
     <script id="hexo-configurations">
     let KEEP = window.KEEP || {};
-    KEEP.hexo_config = {"hostname":"jackyangjie.github.io","root":"/project/blog/","language":"zh-CN"};
+    KEEP.hexo_config = {"hostname":"examle.com","root":"/","language":"zh-CN"};
     KEEP.theme_config = {"toc":{"enable":true,"number":true,"expand_all":true,"init_open":false},"style":{"primary_color":"#0066CC","avatar":"/images/logo.png","favicon":"/images/logo.png","article_img_align":"left","left_side_width":"260px","content_max_width":"920px","hover":{"shadow":true,"scale":true},"first_screen":{"enable":true,"background_img":"/images/bg.svg","description":"Keep writing and Keep loving."},"scroll":{"progress_bar":{"enable":true},"percent":{"enable":true}}},"local_search":{"enable":false,"preload":false},"code_copy":{"enable":true,"style":"mac"},"pjax":{"enable":false},"lazyload":{"enable":false},"version":"3.4.1"};
     KEEP.language_ago = {"second":"%s 秒前","minute":"%s 分钟前","hour":"%s 小时前","day":"%s 天前","week":"%s 周前","month":"%s 月前","year":"%s 年前"};
   </script>
@@ -57,7 +57,7 @@
                     
                         <li class="menu-item">
                             <a class=""
-                               href="/project/blog/"
+                               href="/"
                             >
                                 首页
                             </a>
@@ -65,7 +65,7 @@
                     
                         <li class="menu-item">
                             <a class=""
-                               href="/project/blog/archives"
+                               href="/archives"
                             >
                                 归档
                             </a>
@@ -73,7 +73,7 @@
                     
                         <li class="menu-item">
                             <a class=""
-                               href="/project/blog/categories"
+                               href="/categories"
                             >
                                 分类
                             </a>
@@ -81,7 +81,7 @@
                     
                         <li class="menu-item">
                             <a class=""
-                               href="/project/blog/tags"
+                               href="/tags"
                             >
                                 标签
                             </a>
@@ -104,22 +104,22 @@
             
                 <li class="drawer-menu-item flex-center">
                     <a class=""
-                       href="/project/blog/">首页</a>
+                       href="/">首页</a>
                 </li>
             
                 <li class="drawer-menu-item flex-center">
                     <a class=""
-                       href="/project/blog/archives">归档</a>
+                       href="/archives">归档</a>
                 </li>
             
                 <li class="drawer-menu-item flex-center">
                     <a class=""
-                       href="/project/blog/categories">分类</a>
+                       href="/categories">分类</a>
                 </li>
             
                 <li class="drawer-menu-item flex-center">
                     <a class=""
-                       href="/project/blog/tags">标签</a>
+                       href="/tags">标签</a>
                 </li>
             
         </ul>
@@ -147,7 +147,7 @@
         
             <div class="article-header">
                 <div class="avatar">
-                    <img src="/project/blog/images/logo.png">
+                    <img src="/images/logo.png">
                 </div>
                 <div class="info">
                     <div class="author">
@@ -167,11 +167,11 @@
             <ul>
                 
                     <li>
-                        <a href="/project/blog/categories/tomcat/">tomcat</a>&nbsp;
+                        <a href="/categories/tomcat/">tomcat</a>&nbsp;
                     </li>
                 
                     <li>
-                        &gt; <a href="/project/blog/categories/tomcat/%E7%B1%BB%E5%8A%A0%E8%BD%BD/">类加载</a>&nbsp;
+                        &gt; <a href="/categories/tomcat/%E7%B1%BB%E5%8A%A0%E8%BD%BD/">类加载</a>&nbsp;
                     </li>
                 
             </ul>
@@ -183,11 +183,11 @@
             <ul>
                 
                     <li>
-                        <a href="/project/blog/tags/tomcat/">tomcat</a>&nbsp;
+                        <a href="/tags/tomcat/">tomcat</a>&nbsp;
                     </li>
                 
                     <li>
-                        | <a href="/project/blog/tags/%E7%B1%BB%E5%8A%A0%E8%BD%BD/">类加载</a>&nbsp;
+                        | <a href="/tags/%E7%B1%BB%E5%8A%A0%E8%BD%BD/">类加载</a>&nbsp;
                     </li>
                 
             </ul>
@@ -206,7 +206,7 @@
         
 
         <div class="article-content markdown-body">
-            <link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><p>   tomcat 的类加载机制 和 Java的 双亲委派机制是相反的</p>
+            <p>   tomcat 的类加载机制 和 Java的 双亲委派机制是相反的</p>
 <p>直接看tomcat Bootstrap的 initClassLoader方法</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">initClassLoaders</span><span class="params">()</span> </span>&#123;</span><br><span class="line">       <span class="keyword">try</span> &#123;</span><br><span class="line">           commonLoader = createClassLoader(<span class="string">&quot;common&quot;</span>, <span class="keyword">null</span>);</span><br><span class="line">           <span class="keyword">if</span>( commonLoader == <span class="keyword">null</span> ) &#123;</span><br><span class="line">               <span class="comment">// no config file, default to this loader - we might be in a &#x27;single&#x27; env.</span></span><br><span class="line">               commonLoader=<span class="keyword">this</span>.getClass().getClassLoader();</span><br><span class="line">           &#125;</span><br><span class="line">           catalinaLoader = createClassLoader(<span class="string">&quot;server&quot;</span>, commonLoader);</span><br><span class="line">           sharedLoader = createClassLoader(<span class="string">&quot;shared&quot;</span>, commonLoader);</span><br><span class="line">       &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">           handleThrowable(t);</span><br><span class="line">           log.error(<span class="string">&quot;Class loader creation threw exception&quot;</span>, t);</span><br><span class="line">           System.exit(<span class="number">1</span>);</span><br><span class="line">       &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
 
@@ -238,7 +238,7 @@
                     <div class="article-prev">
                         <a class="prev"
                            rel="prev"
-                           href="/project/blog/2021/06/09/elasticsearch8%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8B%E5%90%AF%E5%8A%A8/"
+                           href="/2021/06/09/elasticsearch8%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B9%8B%E5%90%AF%E5%8A%A8/"
                         >
                             <span class="left arrow-icon flex-center">
                               <i class="fas fa-chevron-left"></i>
@@ -254,7 +254,7 @@
                     <div class="article-next">
                         <a class="next"
                            rel="next"
-                           href="/project/blog/2021/05/28/tomcat8-5%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B8%89%E4%B9%8BEndpoint/"
+                           href="/2021/05/28/tomcat8-5%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0%E4%B8%89%E4%B9%8BEndpoint/"
                         >
                             <span class="title flex-center">
                                 <span class="post-nav-title-item">tomcat8.5源码学习三之Endpoit</span>
