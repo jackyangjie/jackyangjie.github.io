@@ -9,7 +9,7 @@
     
     <title>
         
-            大模型学习一 |
+            docker镜像制作 |
         
         Healthy Mind
     </title>
@@ -141,7 +141,7 @@
     <div class="article-content-container">
 
         <div class="article-title">
-            <span class="title-hover-animation">大模型学习一</span>
+            <span class="title-hover-animation">docker镜像制作</span>
         </div>
 
         
@@ -159,8 +159,19 @@
                     <div class="meta-info">
                         <div class="article-meta-info">
     <span class="article-date article-meta-item">
-        <i class="fas fa-edit"></i>&nbsp;2023-10-11 16:46:24
+        <i class="fas fa-edit"></i>&nbsp;2023-10-26 14:04:30
     </span>
+    
+        <span class="article-categories article-meta-item">
+            <i class="fas fa-folder"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/categories/docker/">docker</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
     
     
         <span class="article-tags article-meta-item">
@@ -168,11 +179,7 @@
             <ul>
                 
                     <li>
-                        <a href="/tags/python/">python</a>&nbsp;
-                    </li>
-                
-                    <li>
-                        | <a href="/tags/%E5%A4%A7%E6%A8%A1%E5%9E%8B/">大模型</a>&nbsp;
+                        <a href="/tags/docker/">docker</a>&nbsp;
                     </li>
                 
             </ul>
@@ -191,33 +198,20 @@
         
 
         <div class="article-content markdown-body">
-            <h4 id="大模型学习一"><a href="#大模型学习一" class="headerlink" title="大模型学习一"></a><strong>大模型学习一</strong></h4><p>  <strong>环境搭建和测试</strong></p>
-<p>​     1.环境和安装包</p>
-<ul>
-<li><p> Ubuntu 20</p>
-</li>
-<li><p>python 3.10</p>
-</li>
-<li><p>中文模型 这里使用的 <a class="link" target="_blank" rel="noopener" href="https://github.com/ymcui/Chinese-LLaMA-Alpaca-2/tree/main">Chinese-LLaMA-2-7B<i class="fas fa-external-link-alt"></i></a></p>
-</li>
-<li><h3 id="llama-cpp"><a href="#llama-cpp" class="headerlink" title="llama.cpp"></a><a class="link" target="_blank" rel="noopener" href="https://github.com/ggerganov/llama.cpp">llama.cpp<i class="fas fa-external-link-alt"></i></a></h3></li>
-</ul>
-<p>本文参考：<a class="link" target="_blank" rel="noopener" href="https://github.com/ymcui/Chinese-LLaMA-Alpaca-2/wiki/llamacpp_zh">https://github.com/ymcui/Chinese-LLaMA-Alpaca-2/wiki/llamacpp_zh<i class="fas fa-external-link-alt"></i></a></p>
-<p> 步骤基本按照这个步骤来。</p>
-<p>  <strong>下载llama.cpp和编译</strong></p>
-<pre><code>  <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/ggerganov/llama.cpp</span><br></pre></td></tr></table></figure>
-</code></pre>
-<p>​     编译 </p>
-   <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">make</span><br></pre></td></tr></table></figure>
+            <h2 id="docker镜像制作"><a href="#docker镜像制作" class="headerlink" title="docker镜像制作"></a>docker镜像制作</h2><p> 在学习PaddleNLP的时候，用到了docker但是官网给的版本太低了2.3，所以就基于 <a target="_blank" rel="noopener" href="https://gitlab.com/nvidia/container-images/cuda/blob/master/dist/12.2.2/ubuntu2004/runtime/cudnn8/Dockerfile"><code>12.2.2-cudnn8-runtime-ubuntu20.04</code></a>做了一个2.6版本的，第一次做遇到不少问题，记录一下</p>
+<p>​    这个是完整的 脚本 Dockerfile python3.8</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">ROM nvidia/cuda:12.2.2-runtime-ubuntu20.04</span><br><span class="line">COPY docker_test/sources.list /etc/apt/ </span><br><span class="line">ENV DEBIAN_FRONTEND=noninteractive</span><br><span class="line">RUN apt-get update &amp;&amp;  apt install -y  vim pip    </span><br><span class="line">RUN pip install paddlepaddle-gpu==2.5.2   -i https://pypi.tuna.tsinghua.edu.cn/simple</span><br><span class="line">COPY PaddleNLP /home/PaddleNLP/</span><br><span class="line"><span class="comment"># pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple</span></span><br><span class="line">RUN pip install paddlenlp==2.6.1 -i  https://mirror.baidu.com/pypi/simple/ </span><br><span class="line">RUN  apt install --allow-change-held-packages -y libnccl2=2.19.3-1+cuda12.2</span><br><span class="line">RUN apt install -y libnccl-dev=2.19.3-1+cuda12.2</span><br><span class="line">COPY cudnn-linux-x86_64-8.9.5.29_cuda12-archive/lib/ /usr/<span class="built_in">local</span>/cuda-12.2/lib64/</span><br><span class="line">COPY cudnn-linux-x86_64-8.9.5.29_cuda12-archive/include/ /usr/<span class="built_in">local</span>/cuda-12.2/include/</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
-<p>​    <strong>然后就是模型转换</strong></p>
-<p>​       这里需要把下载的 Chinese-LLaMA-2-7B 模型转换成 ggml-model-f16.gguf</p>
-<pre><code>  <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">python convert.py Chinese-LLaMA-2-7B/</span><br><span class="line">./quantize ./Chinese-LLaMA-2-7B/ggml-model-f16.gguf ./Chinese-LLaMA-2-7B/ggml-model-q4_0.gguf q4_0</span><br></pre></td></tr></table></figure>
-</code></pre>
-<p>​    然后就是启动聊天窗口</p>
- <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">chmod +x chat.sh</span><br><span class="line">./chat.sh ../chinese-alpaca-2-7b/ggml-model-q4_0.gguf <span class="string">&#x27;中国和美国区别&#x27;</span></span><br></pre></td></tr></table></figure>
+<p>   代码比较少，但是也折腾了半天，命令比较简单，和普通shell 命令基本一样</p>
+<p>  docker 镜像制作命令</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker build -t paddlenlp:2.6-cuda12.2-ubuntu20 . -f docker_test&#x2F;Dockerfile</span><br></pre></td></tr></table></figure>
 
-<img src="/2023/10/11/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%AD%A6%E4%B9%A0%E4%B8%80/1.png" class title="GitHub Path">
+<p>   主要是记录一下 镜像制作命令里 “.” 这个表示当前目录，主要是在COPY 的时候会找不到目录，</p>
+<p>​      -f 就是dockerfile文件了，</p>
+<p>  下面这个 是 Ubuntu20.04 python 3.10 版本的，需要在docker中编译python</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">FROM nvidia/cuda:12.2.2-runtime-ubuntu20.04</span><br><span class="line">COPY docker_test/sources.list /etc/apt/ </span><br><span class="line">ENV DEBIAN_FRONTEND=noninteractive</span><br><span class="line">COPY Python-3.10.0 /home/Python-3.10.0/</span><br><span class="line">RUN apt-get update &amp;&amp;  apt install -y build-essential curl vim  &amp;&amp;  <span class="built_in">cd</span> /home/Python-3.10.0 &amp;&amp; ./configure --enable-optimizations &amp;&amp;  make -j 3 &amp;&amp; make   altinstall </span><br><span class="line">RUN update-alternatives --install /usr/bin/python3 python3 /usr/<span class="built_in">local</span>/bin/python3.10 2  &amp;&amp;  curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py &amp;&amp; python3 get-pip.py</span><br><span class="line">RUN pip install paddlepaddle-gpu==2.5.2   -i https://pypi.tuna.tsinghua.edu.cn/simple</span><br><span class="line"><span class="comment">#RUN pip  install --upgrade paddlenlp&gt;=2.0.0rc -i https://pypi.tuna.tsinghua.edu.cn/simple </span></span><br><span class="line">COPY PaddleNLP /home/PaddleNLP/</span><br><span class="line">RUN <span class="built_in">cd</span> /home/PaddleNLP/ &amp;&amp; pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple</span><br><span class="line">RUN pip install paddlenlp==2.6.1 -i   https://pypi.tuna.tsinghua.edu.cn/simple</span><br><span class="line">RUN  apt install -y libnccl2=2.19.3-1+cuda12.2</span><br><span class="line">RUN apt install -y libnccl-dev=2.19.3-1+cuda12.2</span><br><span class="line"><span class="comment">#RUN apt install -y libnccl2 libnccl-dev</span></span><br><span class="line">COPY cudnn-linux-x86_64-8.9.5.29_cuda12-archive/lib/ /usr/<span class="built_in">local</span>/cuda-12.2/lib64/</span><br><span class="line">COPY cudnn-linux-x86_64-8.9.5.29_cuda12-archive/include/ /usr/<span class="built_in">local</span>/cuda-12.2/include/</span><br></pre></td></tr></table></figure>
+
+<p>  这个需要下载python 源码 <a class="link" target="_blank" rel="noopener" href="https://bootstrap.pypa.io/get-pip.py">https://bootstrap.pypa.io/get-pip.py<i class="fas fa-external-link-alt"></i></a> 这个还需要访问外网，下载很慢</p>
 
         </div>
 
@@ -226,29 +220,14 @@
         
             <div class="article-nav">
                 
-                    <div class="article-prev">
-                        <a class="prev"
-                           rel="prev"
-                           href="/2023/10/26/docker%E9%95%9C%E5%83%8F%E5%88%B6%E4%BD%9C/"
-                        >
-                            <span class="left arrow-icon flex-center">
-                              <i class="fas fa-chevron-left"></i>
-                            </span>
-                            <span class="title flex-center">
-                                <span class="post-nav-title-item">docker镜像制作</span>
-                                <span class="post-nav-item">上一篇</span>
-                            </span>
-                        </a>
-                    </div>
-                
                 
                     <div class="article-next">
                         <a class="next"
                            rel="next"
-                           href="/2023/03/16/%E5%88%9B%E5%BB%BAjava%E5%92%8Cscala%E6%B7%B7%E5%90%88%E9%A1%B9%E7%9B%AE/"
+                           href="/2023/10/11/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%AD%A6%E4%B9%A0%E4%B8%80/"
                         >
                             <span class="title flex-center">
-                                <span class="post-nav-title-item">创建java和scala混合项目</span>
+                                <span class="post-nav-title-item">大模型学习一</span>
                                 <span class="post-nav-item">下一篇</span>
                             </span>
                             <span class="right arrow-icon flex-center">
@@ -358,7 +337,7 @@
         <aside class="page-aside">
             <div class="post-toc-wrap">
     <div class="post-toc">
-        <ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A4%A7%E6%A8%A1%E5%9E%8B%E5%AD%A6%E4%B9%A0%E4%B8%80"><span class="nav-number">1.</span> <span class="nav-text">大模型学习一</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#llama-cpp"><span class="nav-number"></span> <span class="nav-text">llama.cpp</span></a>
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#docker%E9%95%9C%E5%83%8F%E5%88%B6%E4%BD%9C"><span class="nav-number">1.</span> <span class="nav-text">docker镜像制作</span></a></li></ol>
     </div>
 </div>
         </aside>
