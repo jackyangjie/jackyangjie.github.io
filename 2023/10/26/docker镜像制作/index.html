@@ -182,6 +182,10 @@
                         <a href="/tags/docker/">docker</a>&nbsp;
                     </li>
                 
+                    <li>
+                        | <a href="/tags/%E9%95%9C%E5%83%8F/">镜像</a>&nbsp;
+                    </li>
+                
             </ul>
         </span>
     
@@ -199,7 +203,12 @@
 
         <div class="article-content markdown-body">
             <h2 id="docker镜像制作"><a href="#docker镜像制作" class="headerlink" title="docker镜像制作"></a>docker镜像制作</h2><p> 在学习PaddleNLP的时候，用到了docker但是官网给的版本太低了2.3，所以就基于 <a target="_blank" rel="noopener" href="https://gitlab.com/nvidia/container-images/cuda/blob/master/dist/12.2.2/ubuntu2004/runtime/cudnn8/Dockerfile"><code>12.2.2-cudnn8-runtime-ubuntu20.04</code></a>做了一个2.6版本的，第一次做遇到不少问题，记录一下</p>
-<p>​    这个是完整的 脚本 Dockerfile python3.8</p>
+<p>​    这个是完整的 脚本 </p>
+<p>​     <strong>Dockerfile python3.8</strong></p>
+<p>​    <strong>cuda 12.2</strong> </p>
+<p>   <strong>paddlepaddle 2.5.2</strong></p>
+<p>  <strong>paddlenlp  2.6.1</strong></p>
+<p>​     </p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">ROM nvidia/cuda:12.2.2-runtime-ubuntu20.04</span><br><span class="line">COPY docker_test/sources.list /etc/apt/ </span><br><span class="line">ENV DEBIAN_FRONTEND=noninteractive</span><br><span class="line">RUN apt-get update &amp;&amp;  apt install -y  vim pip    </span><br><span class="line">RUN pip install paddlepaddle-gpu==2.5.2   -i https://pypi.tuna.tsinghua.edu.cn/simple</span><br><span class="line">COPY PaddleNLP /home/PaddleNLP/</span><br><span class="line"><span class="comment"># pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple</span></span><br><span class="line">RUN pip install paddlenlp==2.6.1 -i  https://mirror.baidu.com/pypi/simple/ </span><br><span class="line">RUN  apt install --allow-change-held-packages -y libnccl2=2.19.3-1+cuda12.2</span><br><span class="line">RUN apt install -y libnccl-dev=2.19.3-1+cuda12.2</span><br><span class="line">COPY cudnn-linux-x86_64-8.9.5.29_cuda12-archive/lib/ /usr/<span class="built_in">local</span>/cuda-12.2/lib64/</span><br><span class="line">COPY cudnn-linux-x86_64-8.9.5.29_cuda12-archive/include/ /usr/<span class="built_in">local</span>/cuda-12.2/include/</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
 <p>   代码比较少，但是也折腾了半天，命令比较简单，和普通shell 命令基本一样</p>
@@ -209,9 +218,26 @@
 <p>   主要是记录一下 镜像制作命令里 “.” 这个表示当前目录，主要是在COPY 的时候会找不到目录，</p>
 <p>​      -f 就是dockerfile文件了，</p>
 <p>  下面这个 是 Ubuntu20.04 python 3.10 版本的，需要在docker中编译python</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">FROM nvidia/cuda:12.2.2-runtime-ubuntu20.04</span><br><span class="line">COPY docker_test/sources.list /etc/apt/ </span><br><span class="line">ENV DEBIAN_FRONTEND=noninteractive</span><br><span class="line">COPY Python-3.10.0 /home/Python-3.10.0/</span><br><span class="line">RUN apt-get update &amp;&amp;  apt install -y build-essential curl vim  &amp;&amp;  <span class="built_in">cd</span> /home/Python-3.10.0 &amp;&amp; ./configure --enable-optimizations &amp;&amp;  make -j 3 &amp;&amp; make   altinstall </span><br><span class="line">RUN update-alternatives --install /usr/bin/python3 python3 /usr/<span class="built_in">local</span>/bin/python3.10 2  &amp;&amp;  curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py &amp;&amp; python3 get-pip.py</span><br><span class="line">RUN pip install paddlepaddle-gpu==2.5.2   -i https://pypi.tuna.tsinghua.edu.cn/simple</span><br><span class="line"><span class="comment">#RUN pip  install --upgrade paddlenlp&gt;=2.0.0rc -i https://pypi.tuna.tsinghua.edu.cn/simple </span></span><br><span class="line">COPY PaddleNLP /home/PaddleNLP/</span><br><span class="line">RUN <span class="built_in">cd</span> /home/PaddleNLP/ &amp;&amp; pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple</span><br><span class="line">RUN pip install paddlenlp==2.6.1 -i   https://pypi.tuna.tsinghua.edu.cn/simple</span><br><span class="line">RUN  apt install -y libnccl2=2.19.3-1+cuda12.2</span><br><span class="line">RUN apt install -y libnccl-dev=2.19.3-1+cuda12.2</span><br><span class="line"><span class="comment">#RUN apt install -y libnccl2 libnccl-dev</span></span><br><span class="line">COPY cudnn-linux-x86_64-8.9.5.29_cuda12-archive/lib/ /usr/<span class="built_in">local</span>/cuda-12.2/lib64/</span><br><span class="line">COPY cudnn-linux-x86_64-8.9.5.29_cuda12-archive/include/ /usr/<span class="built_in">local</span>/cuda-12.2/include/</span><br></pre></td></tr></table></figure>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"> FROM nvidia/cuda:12.2.2-runtime-ubuntu20.04                                                                                                                              </span><br><span class="line"> COPY docker_test/sources.list /etc/apt/</span><br><span class="line"> ENV DEBIAN_FRONTEND=noninteractive</span><br><span class="line"> COPY Python-3.10.0 /home/Python-3.10.0/</span><br><span class="line"> RUN apt-get update &amp;&amp;  apt install -y build-essential curl vim  &amp;&amp;  <span class="built_in">cd</span> /home/Python-3.10.0 &amp;&amp; ./configure --enable-optimizations &amp;&amp;  make -j 3 &amp;&amp; make   altinstall</span><br><span class="line"> RUN update-alternatives --install /usr/bin/python3 python3 /usr/<span class="built_in">local</span>/bin/python3.10 2</span><br><span class="line"> RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py</span><br><span class="line"> <span class="comment">#RUN python3 get-pip.py</span></span><br><span class="line"> RUN pip3.10 install --upgrade pip</span><br><span class="line">RUN pip install paddlepaddle-gpu==2.5.2   -i https://pypi.tuna.tsinghua.edu.cn/simple</span><br><span class="line"><span class="comment">#RUN pip  install --upgrade paddlenlp&gt;=2.0.0rc -i https://pypi.tuna.tsinghua.edu.cn/simple </span></span><br><span class="line">COPY PaddleNLP /home/PaddleNLP/</span><br><span class="line">RUN <span class="built_in">cd</span> /home/PaddleNLP/ &amp;&amp; pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple</span><br><span class="line">RUN pip install paddlenlp==2.6.1 -i   https://pypi.tuna.tsinghua.edu.cn/simple</span><br><span class="line"></span><br><span class="line">RUN  apt install --allow-change-held-packages -y libnccl2=2.19.3-1+cuda12.2</span><br><span class="line">RUN apt install -y libnccl-dev=2.19.3-1+cuda12.2 &amp;&amp; ln -s /usr/<span class="built_in">local</span>/cuda-12.2/lib64/libcublas.so.12 /usr/<span class="built_in">local</span>/cuda-12.2/lib64/libcublas.so</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">COPY cudnn-linux-x86_64-8.9.5.29_cuda12-archive/lib/ /usr/<span class="built_in">local</span>/cuda-12.2/lib64/</span><br><span class="line">COPY cudnn-linux-x86_64-8.9.5.29_cuda12-archive/include/ /usr/<span class="built_in">local</span>/cuda-12.2/include/</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
 <p>  这个需要下载python 源码 <a class="link" target="_blank" rel="noopener" href="https://bootstrap.pypa.io/get-pip.py">https://bootstrap.pypa.io/get-pip.py<i class="fas fa-external-link-alt"></i></a> 这个还需要访问外网，下载很慢</p>
+<p> 这里需要设置代理：</p>
+<p>​     需要在宿主机上安装代理软件，然后设置 代理</p>
+<ol>
+<li> 当前回话起效 </li>
+</ol>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> http_proxy=<span class="string">&quot;http://ip:port&quot;</span></span><br><span class="line"><span class="built_in">export</span> https_proxy=<span class="string">&quot;https://ip:port&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>   执行build 命令需要添加 –network 把网络指向宿主机</p>
+ <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker build -t paddlenlp:2.6-cuda12.2-ubuntu20 . -f docker_test/Dockerfile --network host</span><br></pre></td></tr></table></figure>
+
+
+
+<p>  2.也可以把这个添加到 dockerfile中</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ENV http_proxy=<span class="string">&quot;http://ip:port&quot;</span></span><br><span class="line">ENV https_proxy=<span class="string">&quot;https_ip:port&quot;</span></span><br></pre></td></tr></table></figure>
+
+
+
 
         </div>
 
