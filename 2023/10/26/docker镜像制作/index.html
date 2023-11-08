@@ -228,16 +228,10 @@
 </ol>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> http_proxy=<span class="string">&quot;http://ip:port&quot;</span></span><br><span class="line"><span class="built_in">export</span> https_proxy=<span class="string">&quot;https://ip:port&quot;</span></span><br></pre></td></tr></table></figure>
 
-<p>   执行build 命令需要添加 –network 把网络指向宿主机</p>
- <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo docker build -t paddlenlp:2.6-cuda12.2-ubuntu20 . -f docker_test/Dockerfile --network host</span><br></pre></td></tr></table></figure>
+<p>   执行build 命令需要添加 –network=host 把网络指向宿主机</p>
+ <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo docker build -t paddlenlp:2.6-cuda12.2-ubuntu20 . -f docker_test/Dockerfile --network=host \</span><br><span class="line">--build-arg HTTP_PROXY=http://127.0.0.1:38080 --build-arg HTTPS_PROXY=http://127.0.0.1:38080</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
-
-
-<p>  2.也可以把这个添加到 dockerfile中</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ENV http_proxy=<span class="string">&quot;http://ip:port&quot;</span></span><br><span class="line">ENV https_proxy=<span class="string">&quot;https_ip:port&quot;</span></span><br></pre></td></tr></table></figure>
-
-
-
+<p>  这里还有需要设置代理参数，有一个比较迷惑的地方， 在系统环境导出了 的代理 变量，好像docker build 加载不到，需要通过 –build-arg传入</p>
 
         </div>
 
