@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="Healthy Mind">
+    
+    <title>
+        
+            paddlenlp文本分类实践 |
+        
+        Healthy Mind
+    </title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="shortcut icon" href="/images/logo.png">
+    <link rel="stylesheet" href="/css/font-awesome.min.css">
+    <script id="hexo-configurations">
+    let KEEP = window.KEEP || {};
+    KEEP.hexo_config = {"hostname":"examle.com","root":"/","language":"zh-CN"};
+    KEEP.theme_config = {"toc":{"enable":true,"number":true,"expand_all":true,"init_open":false},"style":{"primary_color":"#0066CC","avatar":"/images/logo.png","favicon":"/images/logo.png","article_img_align":"left","left_side_width":"260px","content_max_width":"920px","hover":{"shadow":true,"scale":true},"first_screen":{"enable":true,"background_img":"/images/bg.svg","description":"Keep writing and Keep loving."},"scroll":{"progress_bar":{"enable":true},"percent":{"enable":true}}},"local_search":{"enable":false,"preload":false},"code_copy":{"enable":true,"style":"mac"},"pjax":{"enable":false},"lazyload":{"enable":false},"version":"3.4.1"};
+    KEEP.language_ago = {"second":"%s 秒前","minute":"%s 分钟前","hour":"%s 小时前","day":"%s 天前","week":"%s 周前","month":"%s 月前","year":"%s 年前"};
+  </script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+        <span class="scroll-progress-bar"></span>
+    
+
+    
+</div>
+
+
+<main class="page-container">
+
+    
+
+    <div class="page-main-content">
+
+        <div class="page-main-content-top">
+            <header class="header-wrapper">
+
+    <div class="header-content">
+        <div class="left">
+            <a class="logo-title" href="/">
+                Healthy Mind
+            </a>
+        </div>
+
+        <div class="right">
+            <div class="pc">
+                <ul class="menu-list">
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/"
+                            >
+                                首页
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >
+                                归档
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/categories"
+                            >
+                                分类
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/tags"
+                            >
+                                标签
+                            </a>
+                        </li>
+                    
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/">首页</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives">归档</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/categories">分类</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/tags">标签</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle">
+
+            <div class="main-content">
+
+                
+                    <div class="fade-in-down-animation">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            <span class="title-hover-animation">paddlenlp文本分类实践</span>
+        </div>
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="/images/logo.png">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">Healthy Mind</span>
+                        
+                            <span class="author-label">Lv3</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;2023-12-12 14:48:29
+    </span>
+    
+        <span class="article-categories article-meta-item">
+            <i class="fas fa-folder"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/categories/paddlenlp/">paddlenlp</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+    
+        <span class="article-tags article-meta-item">
+            <i class="fas fa-tags"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/tags/paddlenlp/">paddlenlp</a>&nbsp;
+                    </li>
+                
+                    <li>
+                        | <a href="/tags/%E6%96%87%E6%9C%AC%E5%88%86%E7%B1%BB/">文本分类</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+
+    
+    
+    
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <p>​                <a class="link" target="_blank" rel="noopener" href="https://paddlenlp.readthedocs.io/zh/latest/get_started/installation.html">环境安装文档<i class="fas fa-external-link-alt"></i></a></p>
+<p>   这里我使用的docker 安装比较方便，在 NVIDIA 提供的 cuda-12.2 docker镜像基础上安装 paddlenlp 2.6 一开始是自己安装，折腾了好久，各种版本不匹配。后来就改用docker 镜像了</p>
+ <img src="/2023/12/12/paddlenlp%E5%AE%9E%E7%8E%B0%E6%96%87%E6%9C%AC%E5%88%86%E7%B1%BB/1.png" class title="tomcat">
+
+<p>   环境准备好了后就需要提供训练数据 数据格式和训练步骤参考<a class="link" target="_blank" rel="noopener" href="https://github.com/PaddlePaddle/PaddleNLP/tree/develop/applications/text_classification/hierarchical">GitHub文档<i class="fas fa-external-link-alt"></i></a></p>
+<p>   这里需要把label.txt和train.txt准备好格式正确，然后就是使用命令训练数据了，在模型 训练完成后还需要导出模型</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python export_model.py --params_path ./checkpoint/ --output_path ./<span class="built_in">export</span></span><br></pre></td></tr></table></figure>
+
+<p>其实不导出也可以用，但是项目中都会把分类做成web服务api所以需要提供web服务能里，</p>
+<p>paddlenlp 有提供自己的web服务 <a class="link" target="_blank" rel="noopener" href="https://github.com/PaddlePaddle/PaddleNLP/blob/develop/applications/text_classification/hierarchical/deploy/simple_serving/README.md">PaddleNLP SimpleServing 的服务<i class="fas fa-external-link-alt"></i></a> 这个服务的参数输入基本是固定了，在使用的时候我们只需要实现 <strong>from paddlenlp.server import BaseTaskflowHandler</strong> 实现 BaseTaskflowHandler的 process 方法即可 例子如下</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># coding:utf-8</span></span><br><span class="line"><span class="comment"># Copyright (c) 2022  PaddlePaddle Authors. All Rights Reserved.</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;</span></span><br><span class="line"><span class="comment"># you may not use this file except in compliance with the License.</span></span><br><span class="line"><span class="comment"># You may obtain a copy of the License at</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment">#     http://www.apache.org/licenses/LICENSE-2.0</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># Unless required by applicable law or agreed to in writing, software</span></span><br><span class="line"><span class="comment"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span></span><br><span class="line"><span class="comment"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span></span><br><span class="line"><span class="comment"># See the License for the specific language governing permissions and</span></span><br><span class="line"><span class="comment"># limitations under the License.</span></span><br><span class="line"><span class="keyword">from</span> paddlenlp.server <span class="keyword">import</span> BaseTaskflowHandler</span><br><span class="line"><span class="keyword">from</span> paddlenlp.utils.log <span class="keyword">import</span> logger</span><br><span class="line"></span><br><span class="line">RESP_SUCCESS = <span class="string">&quot;SUCCESS&quot;</span></span><br><span class="line">RESP_FAILURE = <span class="string">&quot;FAILURE&quot;</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TrsTaskflowHandler</span>(<span class="params">BaseTaskflowHandler</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self</span>):</span></span><br><span class="line">        self._name = <span class="string">&quot;trs_taskflow_handler&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="meta">    @classmethod</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">process</span>(<span class="params">cls, predictor, data, parameters</span>):</span></span><br><span class="line">        <span class="keyword">if</span> data <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">            <span class="keyword">return</span> &#123;&#125;</span><br><span class="line">        text = <span class="literal">None</span></span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(data) &gt; <span class="number">0</span>:</span><br><span class="line">            text = data</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">return</span> &#123;&#125;</span><br><span class="line">        <span class="keyword">if</span> parameters <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span> :</span><br><span class="line">            schema = parameters</span><br><span class="line">            predictor.set_schema(schema)</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            result = predictor(text)</span><br><span class="line">            format_result = format_response(result)</span><br><span class="line">            <span class="keyword">return</span> format_result</span><br><span class="line">        <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">            <span class="keyword">return</span> &#123;<span class="string">&quot;result&quot;</span>: RESP_FAILURE, <span class="string">&quot;response&quot;</span>: e, <span class="string">&quot;history&quot;</span>: []&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">format_response</span>(<span class="params">result,schema</span>):</span></span><br><span class="line">    rw=&#123;&#125;</span><br><span class="line">    <span class="keyword">for</span> r <span class="keyword">in</span> result:</span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(r) == <span class="number">0</span>:</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line">        <span class="keyword">for</span> w <span class="keyword">in</span> r.values():</span><br><span class="line">            <span class="keyword">for</span> t <span class="keyword">in</span> w:</span><br><span class="line">                <span class="keyword">if</span> t[<span class="string">&#x27;text&#x27;</span>] == <span class="string">&#x27;&#x27;</span>:</span><br><span class="line">                    <span class="keyword">continue</span></span><br><span class="line">                rw[t[<span class="string">&#x27;text&#x27;</span>]]=t</span><br><span class="line">    <span class="keyword">return</span> &#123;<span class="string">&quot;result&quot;</span>: RESP_SUCCESS, <span class="string">&quot;response&quot;</span>: <span class="built_in">list</span>(rw.keys()), <span class="string">&quot;history&quot;</span>:[]&#125;</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>web服务类 TrsUieServer.py 代码如下</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> paddlenlp <span class="keyword">import</span>  Taskflow</span><br><span class="line"><span class="keyword">from</span> trs_server <span class="keyword">import</span> TrsSimpleServer</span><br><span class="line"><span class="keyword">from</span> trs_taskflow_handler <span class="keyword">import</span> TrsTaskflowHandler</span><br><span class="line"><span class="comment"># The schema changed to your defined schema</span></span><br><span class="line">schema = [<span class="string">&quot;人物&quot;</span>]</span><br><span class="line"><span class="comment"># The task path changed to your best model path</span></span><br><span class="line">uie = Taskflow(<span class="string">&quot;information_extraction&quot;</span>, schema=schema, task_path=<span class="string">&quot;../../checkpoint/model_best/&quot;</span>)</span><br><span class="line"><span class="comment"># If you want to define the finetuned uie service</span></span><br><span class="line">trsApp = TrsSimpleServer()</span><br><span class="line">trsHandler = TrsTaskflowHandler()</span><br><span class="line">trsApp.register_taskflow(<span class="string">&quot;chat&quot;</span>, uie,trsHandler)</span><br></pre></td></tr></table></figure>
+
+<p>启动就只需要 执行 如下命令</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">paddle server TrsUieServer:trsApp --host 0.0.0.0 --port 9090</span><br></pre></td></tr></table></figure>
+
+<p>完整nlp server 服务代码<a class="link" target="_blank" rel="noopener" href="https://github.com/jackyangjie/paddle_nlp_web">GitHub代码<i class="fas fa-external-link-alt"></i></a> </p>
+<p>整个项目paddlenlp 的文档还是比较全面工具成套，唯一麻烦的数据，需要手动打标。这里使用的百度的<a class="link" target="_blank" rel="noopener" href="https://github.com/doccano/doccano">doccano<i class="fas fa-external-link-alt"></i></a></p>
+ <img src="/2023/12/12/paddlenlp%E5%AE%9E%E7%8E%B0%E6%96%87%E6%9C%AC%E5%88%86%E7%B1%BB/2.png" class title="tomcat">  
+
+        </div>
+
+        
+
+        
+            <div class="article-nav">
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                           rel="next"
+                           href="/2023/10/26/docker%E9%95%9C%E5%83%8F%E5%88%B6%E4%BD%9C/"
+                        >
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">docker镜像制作</span>
+                                <span class="post-nav-item">下一篇</span>
+                            </span>
+                            <span class="right arrow-icon flex-center">
+                              <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom">
+            <footer class="footer">
+    <div class="info-container">
+        <div class="copyright-info info-item">
+            &copy;
+            
+              <span>2020</span>&nbsp;-&nbsp;
+            
+            2023&nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;<a href="/">Healthy Mind</a>
+        </div>
+        
+        <div class="theme-info info-item">
+            由 <a target="_blank" href="https://hexo.io">Hexo</a> 驱动&nbsp;|&nbsp;主题&nbsp;<a class="theme-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep v3.4.1</a>
+        </div>
+        
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-bottom-side-tools">
+        <div class="side-tools-container">
+    <ul class="side-tools-list">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-expand-width flex-center">
+            <i class="fas fa-arrows-alt-h"></i>
+        </li>
+
+        <li class="tools-item tool-dark-light-toggle flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list">
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+        
+            <li class="tools-item tool-scroll-to-top flex-center">
+                <i class="arrow-up fas fa-arrow-up"></i>
+                <span class="percent"></span>
+            </li>
+        
+    </ul>
+</div>
+
+    </div>
+
+    
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        
+    </div>
+</div>
+        </aside>
+    
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+
+</main>
+
+
+
+<script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/header-shrink.js"></script><script src="/js/back2top.js"></script><script src="/js/dark-light-toggle.js"></script>
+
+
+
+
+    <script src="/js/code-copy.js"></script>
+
+
+
+
+<div class="post-scripts">
+    
+        <script src="/js/left-side-toggle.js"></script><script src="/js/libs/anime.min.js"></script><script src="/js/toc.js"></script>
+    
+</div>
+
+
+
+</body>
+</html>
