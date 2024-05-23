@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="Healthy Mind">
+    
+    <title>
+        
+            transformers训练分类器 |
+        
+        Healthy Mind
+    </title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="shortcut icon" href="/images/logo.png">
+    <link rel="stylesheet" href="/css/font-awesome.min.css">
+    <script id="hexo-configurations">
+    let KEEP = window.KEEP || {};
+    KEEP.hexo_config = {"hostname":"examle.com","root":"/","language":"zh-CN"};
+    KEEP.theme_config = {"toc":{"enable":true,"number":true,"expand_all":true,"init_open":false},"style":{"primary_color":"#0066CC","avatar":"/images/logo.png","favicon":"/images/logo.png","article_img_align":"left","left_side_width":"260px","content_max_width":"920px","hover":{"shadow":true,"scale":true},"first_screen":{"enable":true,"background_img":"/images/bg.svg","description":"Keep writing and Keep loving."},"scroll":{"progress_bar":{"enable":true},"percent":{"enable":true}}},"local_search":{"enable":false,"preload":false},"code_copy":{"enable":true,"style":"mac"},"pjax":{"enable":false},"lazyload":{"enable":false},"version":"3.4.1"};
+    KEEP.language_ago = {"second":"%s 秒前","minute":"%s 分钟前","hour":"%s 小时前","day":"%s 天前","week":"%s 周前","month":"%s 月前","year":"%s 年前"};
+  </script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+        <span class="scroll-progress-bar"></span>
+    
+
+    
+</div>
+
+
+<main class="page-container">
+
+    
+
+    <div class="page-main-content">
+
+        <div class="page-main-content-top">
+            <header class="header-wrapper">
+
+    <div class="header-content">
+        <div class="left">
+            <a class="logo-title" href="/">
+                Healthy Mind
+            </a>
+        </div>
+
+        <div class="right">
+            <div class="pc">
+                <ul class="menu-list">
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/"
+                            >
+                                首页
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >
+                                归档
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/categories"
+                            >
+                                分类
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/tags"
+                            >
+                                标签
+                            </a>
+                        </li>
+                    
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/">首页</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives">归档</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/categories">分类</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/tags">标签</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle">
+
+            <div class="main-content">
+
+                
+                    <div class="fade-in-down-animation">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            <span class="title-hover-animation">transformers训练分类器</span>
+        </div>
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="/images/logo.png">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">Healthy Mind</span>
+                        
+                            <span class="author-label">Lv3</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;2024-05-23 15:14:37
+    </span>
+    
+    
+        <span class="article-tags article-meta-item">
+            <i class="fas fa-tags"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/tags/transformers/">transformers</a>&nbsp;
+                    </li>
+                
+                    <li>
+                        | <a href="/tags/bert/">bert</a>&nbsp;
+                    </li>
+                
+                    <li>
+                        | <a href="/tags/%E6%A8%A1%E5%9E%8B/">模型</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+
+    
+    
+    
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <h1 id="transformers-分类器训练"><a href="#transformers-分类器训练" class="headerlink" title="transformers 分类器训练"></a>transformers 分类器训练</h1><h2 id="环境说明"><a href="#环境说明" class="headerlink" title="环境说明:"></a>环境说明:</h2><p>​         python 3.10,</p>
+<p>​         ubuntu 22.04</p>
+<p>​         pytorch  2.3.0</p>
+<p>​        transformers  4.40.2</p>
+<p> 问题记录, transformers默认是多gpu训练如果在多GPU机器上运行会有如下问题</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">RuntimeError: NCCL Error <span class="number">2</span>: unhandled system error (run <span class="keyword">with</span> NCCL_DEBUG=INFO <span class="keyword">for</span> details)</span><br></pre></td></tr></table></figure>
+
+<p>需要指定程序的 GPU</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> os</span><br><span class="line">os.environ[<span class="string">&#x27;CUDA_VISIBLE_DEVICES&#x27;</span>]=<span class="string">&#x27;2&#x27;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="step1-导入包"><a href="#step1-导入包" class="headerlink" title="step1 导入包"></a>step1 导入包</h2><figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> transformers <span class="keyword">import</span> AutoModel,AutoModelForSequenceClassification,BertForSequenceClassification</span><br><span class="line"><span class="keyword">from</span> datasets <span class="keyword">import</span> load_dataset,Dataset</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br></pre></td></tr></table></figure>
+
+<h2 id="step2-读取数据"><a href="#step2-读取数据" class="headerlink" title="step2 读取数据"></a>step2 读取数据</h2><figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">pd_data =pd.read_excel(<span class="string">&quot;./data/emotion_tag_hjy_0506.xls&quot;</span>)</span><br><span class="line">tag_to_label = &#123;</span><br><span class="line">        <span class="string">&quot;悲伤&quot;</span>: <span class="number">0</span>,</span><br><span class="line">        <span class="string">&quot;愤怒&quot;</span>: <span class="number">1</span>,</span><br><span class="line">        <span class="string">&quot;惊讶&quot;</span>: <span class="number">2</span>,</span><br><span class="line">        <span class="string">&quot;恐惧&quot;</span>: <span class="number">3</span>,</span><br><span class="line">        <span class="string">&quot;快乐&quot;</span>: <span class="number">4</span>,</span><br><span class="line">        <span class="string">&quot;其他&quot;</span>: <span class="number">5</span>,</span><br><span class="line">        <span class="string">&quot;厌恶&quot;</span>: <span class="number">6</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">label_to_tag = &#123;</span><br><span class="line">         <span class="number">0</span>:<span class="string">&quot;悲伤&quot;</span>,</span><br><span class="line">         <span class="number">1</span>:<span class="string">&quot;愤怒&quot;</span>,</span><br><span class="line">         <span class="number">2</span>:<span class="string">&quot;惊讶&quot;</span>,</span><br><span class="line">         <span class="number">3</span>:<span class="string">&quot;恐惧&quot;</span>,</span><br><span class="line">         <span class="number">4</span>:<span class="string">&quot;快乐&quot;</span>,</span><br><span class="line">         <span class="number">5</span>:<span class="string">&quot;其他&quot;</span>,</span><br><span class="line">         <span class="number">6</span>:<span class="string">&quot;厌恶&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">pd_data[<span class="string">&#x27;label&#x27;</span>]=pd_data[<span class="string">&quot;tag&quot;</span>].<span class="built_in">map</span>(<span class="keyword">lambda</span> x: tag_to_label[x])</span><br><span class="line">pd_data[<span class="string">&#x27;content_cn&#x27;</span>]=pd_data[<span class="string">&quot;content_cn&quot;</span>].<span class="built_in">map</span>(<span class="keyword">lambda</span> c: c.strip())</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="step3-数据转换Dataset"><a href="#step3-数据转换Dataset" class="headerlink" title="step3 数据转换Dataset"></a>step3 数据转换Dataset</h2><figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">dataset = Dataset.from_pandas(pd_data)</span><br><span class="line">dataset = dataset.shuffle(seed=<span class="number">42</span>)</span><br><span class="line">dataset = dataset.<span class="built_in">filter</span>(<span class="keyword">lambda</span> x: x[<span class="string">&quot;content_cn&quot;</span>] <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>)</span><br><span class="line">dataset = dataset.<span class="built_in">filter</span>(<span class="keyword">lambda</span> x: x[<span class="string">&quot;label&quot;</span>] <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>)</span><br><span class="line">dataset = dataset.train_test_split(test_size =<span class="number">0.1</span>)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="step4-加载模型和tokenizer"><a href="#step4-加载模型和tokenizer" class="headerlink" title="step4 加载模型和tokenizer"></a>step4 加载模型和tokenizer</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> transformers <span class="keyword">import</span> AutoTokenizer</span><br><span class="line"></span><br><span class="line">mode_name=<span class="string">&quot;hfl/chinese-macbert-large&quot;</span></span><br><span class="line"><span class="comment"># mode_name=&quot;google-bert/bert-base-chinese&quot;</span></span><br><span class="line"><span class="comment"># model = AutoModel.from_pretrained(mode_name)</span></span><br><span class="line">model = AutoModelForSequenceClassification.from_pretrained(mode_name,num_labels=<span class="built_in">len</span>(label_to_tag),</span><br><span class="line">        label2id=tag_to_label,</span><br><span class="line">        <span class="comment"># problem_type = &quot;single_label_classification&quot;,</span></span><br><span class="line">        id2label=label_to_tag)</span><br><span class="line">tokenizer = AutoTokenizer.from_pretrained(mode_name)</span><br></pre></td></tr></table></figure>
+
+<h2 id="Step5-tokenizer-处理数据"><a href="#Step5-tokenizer-处理数据" class="headerlink" title="Step5 tokenizer 处理数据"></a>Step5 tokenizer 处理数据</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">data_procce_function</span>(<span class="params">example</span>):</span></span><br><span class="line">    token_exmaple = tokenizer(example[<span class="string">&#x27;content_cn&#x27;</span>],max_length=<span class="number">512</span>,truncation=<span class="literal">True</span>)</span><br><span class="line">    token_exmaple[<span class="string">&#x27;labels&#x27;</span>] = example[<span class="string">&#x27;label&#x27;</span>]</span><br><span class="line">    <span class="keyword">return</span> token_exmaple</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">token_dataset = dataset.<span class="built_in">map</span>(function=data_procce_function,batched=<span class="literal">True</span>,remove_columns=dataset[<span class="string">&quot;train&quot;</span>].column_names)</span><br><span class="line"><span class="comment"># tokenizer</span></span><br><span class="line">token_dataset</span><br><span class="line"><span class="comment"># token_dataset[&quot;train&quot;][0]</span></span><br><span class="line"><span class="comment">#解码显示</span></span><br><span class="line">tokenizer.decode(token_dataset[<span class="string">&quot;train&quot;</span>][<span class="number">0</span>][<span class="string">&#x27;input_ids&#x27;</span>])</span><br></pre></td></tr></table></figure>
+
+<h2 id="Step6-创建评估函数"><a href="#Step6-创建评估函数" class="headerlink" title="Step6 创建评估函数"></a>Step6 创建评估函数</h2><p>​     对于不同任务（<a class="link" target="_blank" rel="noopener" href="https://huggingface.co/tasks">任务类型列表<i class="fas fa-external-link-alt"></i></a>）的评估函数是不一样的在 <a class="link" target="_blank" rel="noopener" href="https://huggingface.co/tasks/text-classification">huggingface<i class="fas fa-external-link-alt"></i></a> 右下角有一个Metrics for Text Classification </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> evaluate,numpy </span><br><span class="line"></span><br><span class="line"><span class="comment">#这里用准确率函数，如果是多标签就用f1函数 </span></span><br><span class="line"><span class="comment">#GitHub 原例子 https://github.com/huggingface/transformers/tree/main/examples/pytorch/text-classification</span></span><br><span class="line">acc_metric = evaluate.load(<span class="string">&quot;accuracy&quot;</span>)</span><br><span class="line"><span class="comment"># f1_mectric = evaluate.load(&quot;f1&quot;)</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">eval_metric</span>(<span class="params">eval_predict</span>):</span></span><br><span class="line">    predictions,labels = eval_predict</span><br><span class="line">    <span class="comment"># print(predictions)</span></span><br><span class="line">    <span class="comment"># predictions = predictions.argmax(axis=-1)</span></span><br><span class="line">    predictions = numpy.argmax(predictions, axis=<span class="number">1</span>)</span><br><span class="line">    result = acc_metric.compute(predictions=predictions, references=labels)</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(result) &gt; <span class="number">1</span>:</span><br><span class="line">        result[<span class="string">&quot;combined_score&quot;</span>] = numpy.mean(<span class="built_in">list</span>(result.values())).item()</span><br><span class="line">    <span class="keyword">return</span> result</span><br><span class="line">    </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="Step7-创建训练参数"><a href="#Step7-创建训练参数" class="headerlink" title="Step7 创建训练参数"></a>Step7 创建训练参数</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> transformers <span class="keyword">import</span> TrainingArguments</span><br><span class="line"></span><br><span class="line"><span class="comment">#模型训练参数设置</span></span><br><span class="line"><span class="comment">#具体例子 代码 https://github.com/huggingface/transformers/blob/main/examples/pytorch/text-classification/run_classification.py</span></span><br><span class="line">train_args = TrainingArguments(</span><br><span class="line">                               </span><br><span class="line">                               output_dir=<span class="string">&quot;./output&quot;</span>,</span><br><span class="line">                               per_device_eval_batch_size=<span class="number">64</span>,   <span class="comment">#验证时的batch_size</span></span><br><span class="line">                               per_device_train_batch_size=<span class="number">4</span>,   <span class="comment">#训练时批次大小</span></span><br><span class="line">                               gradient_accumulation_steps=<span class="number">32</span>,  <span class="comment"># *** 梯度累加 ***</span></span><br><span class="line">                               optim=<span class="string">&quot;adafactor&quot;</span>,               <span class="comment"># *** adafactor优化器 *** </span></span><br><span class="line">                               logging_steps=<span class="number">50</span>,                </span><br><span class="line">                               logging_dir=<span class="string">&#x27;./logs&#x27;</span>,</span><br><span class="line">                               logging_strategy=<span class="string">&#x27;steps&#x27;</span>,</span><br><span class="line">  </span><br><span class="line">    						 <span class="comment"># evaluation_strategy=&quot;epoch&quot;,     # 评估策略</span></span><br><span class="line">                               <span class="comment"># save_strategy=&quot;epoch&quot;,         # 保存策略</span></span><br><span class="line">                               num_train_epochs=<span class="number">5</span>,              <span class="comment"># 训练轮数</span></span><br><span class="line">                               learning_rate=<span class="number">2e-5</span>,              <span class="comment"># 学习率</span></span><br><span class="line">                               weight_decay=<span class="number">0.01</span>,               <span class="comment"># weight_decay</span></span><br><span class="line">                               evaluation_strategy=<span class="string">&quot;steps&quot;</span>,      <span class="comment"># 评估策略</span></span><br><span class="line">                               <span class="comment"># metric_for_best_model=&quot;f1&quot;,      # 设定评估指标</span></span><br><span class="line">                               load_best_model_at_end=<span class="literal">True</span>        <span class="comment">#加载最优模型</span></span><br><span class="line"></span><br><span class="line">                              )</span><br><span class="line"><span class="comment"># train_args</span></span><br></pre></td></tr></table></figure>
+
+<pre><code>  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#模型训练</span></span><br><span class="line"><span class="keyword">from</span> transformers <span class="keyword">import</span> Trainer,DataCollatorWithPadding</span><br><span class="line"></span><br><span class="line">data_collator = DataCollatorWithPadding(tokenizer=tokenizer)</span><br><span class="line">trainer = Trainer(model=model,</span><br><span class="line">               args=train_args,</span><br><span class="line">               train_dataset=token_dataset[<span class="string">&#x27;train&#x27;</span>],</span><br><span class="line">               eval_dataset=token_dataset[<span class="string">&#x27;test&#x27;</span>],</span><br><span class="line">               data_collator=data_collator,</span><br><span class="line">               compute_metrics=eval_metric</span><br><span class="line">                )</span><br><span class="line">train_result = trainer.train()</span><br></pre></td></tr></table></figure>
+</code></pre>
+<h2 id="Step8模型评估"><a href="#Step8模型评估" class="headerlink" title="Step8模型评估"></a>Step8模型评估</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">metrics = train_result.metrics</span><br><span class="line">trainer.log_metrics(<span class="string">&quot;train&quot;</span>, metrics)</span><br></pre></td></tr></table></figure>
+
+<h2 id="Step-9-模型预测"><a href="#Step-9-模型预测" class="headerlink" title="Step 9 模型预测"></a>Step 9 模型预测</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> transformers <span class="keyword">import</span> pipeline</span><br><span class="line"><span class="comment">#input=&#x27;4月10日｜阿里巴巴(9988.HK)今日表现强势，盘中最高涨5.82%报74.6港元，股价创3月14日以来新高。消息面上，阿里巴巴创始人马云于阿里内网发帖，高度肯定蔡崇信和吴泳铭组成的新管理层的变革勇气，称阿里巴巴已重回健康成长轨道，并支持继续改革。这是退休后的马云五年来首次长篇幅分享对公司改革创新及未来前景的思考。&#x27;</span></span><br><span class="line"><span class="comment">#input=&#x27;这位辛迪·坎宁安明星说，当被告知她在28年后被解雇时，她“心碎”了......阅读整个故事&#x27;</span></span><br><span class="line"><span class="comment">#input=&#x27;阿尔贝松杂货店似乎发现自己成为了更多抖音诽谤的接收者，但这一次，该应用程序的一些人认为DoorDash可能与一名用户的碎牛肉剧有关。Shantaq(@heyshantaqtv)上传了一段病毒视频，呼吁阿尔贝松和...阅读整个故事&#x27;</span></span><br><span class="line"><span class="built_in">input</span>=<span class="string">&#x27;洪水桥房协地盘四级火，起火逾18小时仍然未救熄。　　消防早上继续灌救，不断向洪雅路地盘火场射水，地盘仍然冒起浓烟，出动无人机升空视察火场情况。　　两个天秤一度被指有倒塌风险，屋宇署评估后沒有即时危险。　　有附近居民指有浓烟涌入家中，需关窗和戴上口罩。洪福邨居民何先生：「烟味很臭，我住在2楼也嗅到烟味，很像胶味、刺喉。今天好一些、昨天（星期二）厉害。昨天我不敢上去。」洪福邨居民黄小姐：「嗅到、仍很大烟味。担心味道、始终它烧了很久，烟也真的大。（家中有甚么应对措施？）把窗全都关掉、开冷气&#x27;</span></span><br><span class="line"></span><br><span class="line">pipe =pipeline(<span class="string">&quot;text-classification&quot;</span>, model=model, tokenizer=tokenizer, device=<span class="number">0</span>)</span><br><span class="line">pipe(<span class="built_in">input</span>)</span><br></pre></td></tr></table></figure>
+
+
+        </div>
+
+        
+
+        
+            <div class="article-nav">
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                           rel="next"
+                           href="/2024/04/15/%E5%A4%A7%E6%A8%A1%E5%9E%8B%E8%AE%AD%E7%BB%83%E6%A1%86%E6%9E%B6swift%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/"
+                        >
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">大模型训练框架swift简单使用</span>
+                                <span class="post-nav-item">下一篇</span>
+                            </span>
+                            <span class="right arrow-icon flex-center">
+                              <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom">
+            <footer class="footer">
+    <div class="info-container">
+        <div class="copyright-info info-item">
+            &copy;
+            
+              <span>2020</span>&nbsp;-&nbsp;
+            
+            2024&nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;<a href="/">Healthy Mind</a>
+        </div>
+        
+        <div class="theme-info info-item">
+            由 <a target="_blank" href="https://hexo.io">Hexo</a> 驱动&nbsp;|&nbsp;主题&nbsp;<a class="theme-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep v3.4.1</a>
+        </div>
+        
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-bottom-side-tools">
+        <div class="side-tools-container">
+    <ul class="side-tools-list">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-expand-width flex-center">
+            <i class="fas fa-arrows-alt-h"></i>
+        </li>
+
+        <li class="tools-item tool-dark-light-toggle flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list">
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+        
+            <li class="tools-item tool-scroll-to-top flex-center">
+                <i class="arrow-up fas fa-arrow-up"></i>
+                <span class="percent"></span>
+            </li>
+        
+    </ul>
+</div>
+
+    </div>
+
+    
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#transformers-%E5%88%86%E7%B1%BB%E5%99%A8%E8%AE%AD%E7%BB%83"><span class="nav-number">1.</span> <span class="nav-text">transformers 分类器训练</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E8%AF%B4%E6%98%8E"><span class="nav-number">1.1.</span> <span class="nav-text">环境说明:</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#step1-%E5%AF%BC%E5%85%A5%E5%8C%85"><span class="nav-number">1.2.</span> <span class="nav-text">step1 导入包</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#step2-%E8%AF%BB%E5%8F%96%E6%95%B0%E6%8D%AE"><span class="nav-number">1.3.</span> <span class="nav-text">step2 读取数据</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#step3-%E6%95%B0%E6%8D%AE%E8%BD%AC%E6%8D%A2Dataset"><span class="nav-number">1.4.</span> <span class="nav-text">step3 数据转换Dataset</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#step4-%E5%8A%A0%E8%BD%BD%E6%A8%A1%E5%9E%8B%E5%92%8Ctokenizer"><span class="nav-number">1.5.</span> <span class="nav-text">step4 加载模型和tokenizer</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Step5-tokenizer-%E5%A4%84%E7%90%86%E6%95%B0%E6%8D%AE"><span class="nav-number">1.6.</span> <span class="nav-text">Step5 tokenizer 处理数据</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Step6-%E5%88%9B%E5%BB%BA%E8%AF%84%E4%BC%B0%E5%87%BD%E6%95%B0"><span class="nav-number">1.7.</span> <span class="nav-text">Step6 创建评估函数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Step7-%E5%88%9B%E5%BB%BA%E8%AE%AD%E7%BB%83%E5%8F%82%E6%95%B0"><span class="nav-number">1.8.</span> <span class="nav-text">Step7 创建训练参数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Step8%E6%A8%A1%E5%9E%8B%E8%AF%84%E4%BC%B0"><span class="nav-number">1.9.</span> <span class="nav-text">Step8模型评估</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Step-9-%E6%A8%A1%E5%9E%8B%E9%A2%84%E6%B5%8B"><span class="nav-number">1.10.</span> <span class="nav-text">Step 9 模型预测</span></a></li></ol></li></ol>
+    </div>
+</div>
+        </aside>
+    
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+
+</main>
+
+
+
+<script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/header-shrink.js"></script><script src="/js/back2top.js"></script><script src="/js/dark-light-toggle.js"></script>
+
+
+
+
+    <script src="/js/code-copy.js"></script>
+
+
+
+
+<div class="post-scripts">
+    
+        <script src="/js/left-side-toggle.js"></script><script src="/js/libs/anime.min.js"></script><script src="/js/toc.js"></script>
+    
+</div>
+
+
+
+</body>
+</html>
